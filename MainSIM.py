@@ -23,8 +23,8 @@ class Hero:
         self.support_out = support_out #1-100 based on amount of support (healing + utility)
         self.NV_power = NV_power #Non-visible power, based on position control and tanking ability | 1-100
         self.V_power = V_power #Visible power, based on damage output
-        self.Support_X_Vpower = 
-        self.Support_X_NVpower = 
+        self.Support_X_Vpower = Vpower_CAP / V_power
+        self.Support_X_NVpower = NVpower_CAP / NV_power
         self.Vpower_CAP = Vpower_CAP
         self.NVpower_CAP = NVpower_CAP
         self.fun = fun
