@@ -4,10 +4,16 @@ import random
 #pip3 install random-words
 r = RandomWords()
 
-all_heroes = ['Ana', 'Ashe', 'Baptiste', 'Bastion', 'Brigitte', 'D.va', 'Doomfist', 'Echo', 'Genji', 'Hanzo', 'Junkrat', 'Lucio',
+all_heroes = ['Ana', 'Ashe', 'Baptiste', 'Bastion', 'Brigitte', 'DIVA', 'Doomfist', 'Echo', 'Genji', 'Hanzo', 'Junkrat', 'Lucio',
  'Mccree', 'Mei', 'Mercy', 'Moira', 'Orisa' , 'Pharah', 'Reaper' ,'Reinhardt', 'Roadhog', 'Sigma', 'Soldier 76', 'Sombra', 'Symmetra', 'Torbjorn', 'Tracer', 'Widowmaker',
- 'Winston', 'Wrecking Ball', 'Zarya', 'Zenyatta']
+ 'Winston', 'Hammond', 'Zarya', 'Zenyatta']
 
+
+all_tanks = [5, 16, 19, 20, 21, 28, 29, 30]
+
+all_supports = [0, 2, 4, 11, 14, 15, 31]
+
+all_damage = [1, 3, 6, 7, 8, 9, 10, 12, 13, 17, 18, 22, 23, 24, 25, 26, 27]
 
 class Hero:
 
@@ -33,13 +39,32 @@ class Hero:
 
 class Player:
 
-    def __init__(self, rank_start, rank_end):
+    def __init__(self, rank_start, rank_end, role_variable):
         self.name = "BigGamer" + str(random.randint(10,500))
         self.rank = random.randint(rank_start, rank_end)
-        self.mainID = random.randint(0,31)
+        player_average = rank_start + rank_end / 2
+        # making sure 2-2-2 is enforced
+        self.role_variable = role_variable
+        if role_variable == 0:
+            self.mainID = random.choice(all_tanks)
+        if role_variable == 1:
+            self.mainID = random.choice(all_supports)
+        if role_variable == 2:
+            self.mainID = random.choice(all_damage)
         self.swap_willingness = random.randint(1,100)
-        self.frustration = random.randint(1,40)
+        self.frustration = 0
         self.char_being_played = self.mainID
+        self.last_played = self.mainID
+        self.deaths = 0
+        self.eliminations = 0
+        self.heroes_played = {self.mainID: 1}
+        self.fun_had = 100
+        self.personality_type = str(random.choices(
+            [1,2,3,4,5],
+            weights = [0.1, 0.2, 0.3, ( player_average / 7000), (player_average / 7000)],
+            k = 1
+        )[0]) # 1-5. with 1 being the most hostile, and 5 being the best teammate you can get
+
 
     
 
@@ -75,31 +100,137 @@ Torbjorn = Hero(25, 1, 2, 10, 40, 0, 55, 65, 75, 65, 75, ['Rivet Gun', 'Hammer',
 Tracer = Hero(26, 1, 0, 80, 35, 0, 35, 90, 100, 55, 85, ['Pulse Pistols'], [1,['Pulse Bomb']])
 Widowmaker = Hero(27, 1, 2, 80, 40, 0, 65, 70, 100, 75, 75, ['Sniper'], [1,['Venom Mine']])
 Winston = Hero(28, 0, 0, 50, 35, 0, 55, 30, 45, 65, 40, ['Tesla Cannon', 'Jump Pack'], [1,['Primal Rage']])
-WreckingBall = Hero(29, 0, 0, 80, 90, 0, 90, 75, 80, 95, 75, ['Quad Cannons', 'Roll', 'Piledriver'], [1,['Mines']])
+Hammond = Hero(29, 0, 0, 80, 90, 0, 90, 75, 80, 95, 75, ['Quad Cannons', 'Roll', 'Piledriver'], [1,['Mines']])
 Zarya = Hero(30, 0, 1, 10, 20, 0, 45, 45, 65, 55, 70, ['Particle Cannon'], [2,['Graviton Surge']])
 Zenyatta = Hero(31, 2, 0, 90, 5, 55, 5, 85, 100, 15, 70, ['Orbs of Destruction'], [0,['Orb of Harmony', 'Transcendence']])
 
 
+meta_comp = [31,29,26,14,7,4,2,1,9]
 
+# These are all lists of things for players to say in and after the games
+choosing_hero_sentences_angriest = ['bro, i f****** hate this hero', 'this s*** is garbage', 'I hate this dogs*** meta', 'F*** THIS F****** GAME', 'im about to f****** throw']
+choosing_hero_sentences_upset = ["i guess ill play this guy", 'am i really stuck on this hero', 'i shouldnt have queued']
+choosing_hero_random = ['whats up guys?', 'wuz goo', 'whats crackin', 'yo', 'Yo', 'Hey']
 
+end_of_game_angry = ['was i the only one playing?', 'our mercy threw', 'F*** THIS GAME', 'serious question. were our dps throwing?', 'gg. tank diff', 'support diff', 'dps diff']
+end_of_game = ['I feel very, very small... please hold me...', "I'm trying to be a nicer person. It's hard, but I'm trying, guys.", "I'm wrestling with some insecurity issues in my life but thank you for playing with me.", 'gg' 'GGs', 'good try', 'gg go next']
 
-
+# Create a range for the ranks of the players
 rank_start = int(input("Enter rank range start: "))
 rank_end = int(input("Enter rank range end: "))
 
+# Both team lists
 red_team = []
 blue_team = []
 
-all_teams = [red_team, blue_team]
-
-for team_used in all_teams:
+# Generate the players, and make it 2-2-2
+for team_used in [red_team, blue_team]:
     for player_used in range(6):
-        team_used.append(Player(rank_start, rank_end))
+        role_type = None
+        if player_used == 0 or player_used == 1:
+            role_type = 0
+        elif player_used == 2 or player_used == 3:
+            role_type = 1
+        else:
+            role_type = 2
+        team_used.append(Player(rank_start, rank_end, role_type))
 
 
 for x in red_team:
-    print(x.name + ' and their main is ' + all_heroes[x.mainID] + ' and theyre on red team')
+    print(x.name + "'s main is " + all_heroes[x.mainID] + ", they're on red team, and their personality type is: " + x.personality_type)
 
 for x in blue_team:
-    print(x.name + ' and their main is ' + all_heroes[x.mainID] + ' and theyre on blue team')
+    print(x.name + "'s main is " + all_heroes[x.mainID] + ", they're on blue team, and their personality type is: " + x.personality_type)
+
+
+# ---------------------- First game ---------------------------------
+
+
+# First hero pick
+
+#try to pick their main
+
+for current_team in [red_team, blue_team]:
+    sr_average = (rank_start + rank_end) / 2
+    swap_said = False
+    comp_synergy = {}
+    meta_synergy = []
+    team_swap_num = 0
+    
+    # Creating lists to see how close the teams are to synergy or meta comp
+    for i in current_team:
+        if i.play_style in comp_synergy:
+            comp_synergy[i.play_style] += 1
+        else:
+            comp_synergy[i.play_style] = 1
+
+        if i.play_style in meta_comp:
+            meta_synergy += i.play_style
+
+    comp_synergy_key = max(comp_synergy, key=comp_synergy.get())
+
+    # Check if their team is closer to meta comp, or a certain synergy
+
+    if len(meta_synergy) > comp_synergy[comp_synergy_key]:
+        team_swap_num = 3
+    else:
+        team_swap_num = comp_synergy_key
+    
+    chars_picked = []
+    for x in current_team:
+        char_weight_pick = random.choices(
+            #1 is synergy, 2 is main, 3 is random
+            [1,2,3],
+            weights=[((sr_average * x.swap_willingness) / 150,000)), 0.4, 0.2],
+            k=1
+        )
+        
+        if x.mainID not in chars_picked:
+            x.char_being_played = x.mainID
+            chars_picked.append(x.mainID)
+        else: 
+            #change here to look in their history for a hero that can be picked
+            if 
+                        
+            #put the possibility of leaving here
+            if random.random() < 0.2:
+                print(x.name + ": " + choosing_hero_sentences_angriest)
+
+
+
+for i in range(4):
+    for current_team in [red_team, blue_team]:
+
+        for x in current_team:
+            if i == 3 and random.choices(
+                [True, False],
+                weights = [],
+                k = 1
+            )
+            
+
+
+
+#During round
+
+
+
+# End of round
+#------------------------------------
+# For each player, update the heroes played with the current one
+for current_team in [red_team, blue_team]:
+    for x in current_team:
+        # Check to see if they swapped that round
+        if x.last_played != x.char_being_played:
+            if x.char_being_played in x.heroes_played:
+                x.heroes_played[x.char_being_played] += 1
+            else: 
+                x.heroes_played[x.char_being_played] = 1
+        x.last_played = x.char_being_played
+
+
+
+
+
+# ----------------------- End of Game -----------------------------------
 
