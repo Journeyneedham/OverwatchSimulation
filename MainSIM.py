@@ -15,6 +15,24 @@ all_supports = [0, 2, 4, 11, 14, 15, 31]
 
 all_damage = [1, 3, 6, 7, 8, 9, 10, 12, 13, 17, 18, 22, 23, 24, 25, 26, 27]
 
+brawl_tanks = [19, 30]
+
+brawl_damage = [12, 18, 22]
+
+brawl_support = [15, 11, 4]
+
+dive_tanks = [5, 28, 29]
+
+dive_damage = [6, 7, 8, 17, 23, 26]
+
+dive_support = [0, 11, 14, 31]
+
+bunker_tanks = [16, 20, 21, 19]
+
+bunker_damage = [1, 3, 9, 10, 22, 24, 25, 27]
+
+bunker_support = [2, 14, 15]
+
 class Hero:
 
     def __init__(self, id_number, role_type, play_style, map_user, map_controller, support_out, NV_power, V_power, Vpower_CAP, NVpower_CAP, fun, abilities, ultimate):
@@ -66,6 +84,16 @@ class Player:
         )[0]) # 1-5. with 1 being the most hostile, and 5 being the best teammate you can get
 
 
+    def swapHero(self, new_hero):
+        self.last_played = self.char_being_played
+        self.char_being_played = new_hero
+        if new_hero in self.heroes_played:
+            self.heroes_played[new_hero] += 1
+        else:
+            self.heroes_played[new_hero] = 1
+        print(self.name + " has swapped to " + self.char_being_played)
+
+
     
 
 # id    role type   play style   map user    map controller    support out     Non vis power   vis power   vis cap   nonvis cap   fun  abilities  ultimate 
@@ -104,8 +132,8 @@ Hammond = Hero(29, 0, 0, 80, 90, 0, 90, 75, 80, 95, 75, ['Quad Cannons', 'Roll',
 Zarya = Hero(30, 0, 1, 10, 20, 0, 45, 45, 65, 55, 70, ['Particle Cannon'], [2,['Graviton Surge']])
 Zenyatta = Hero(31, 2, 0, 90, 5, 55, 5, 85, 100, 15, 70, ['Orbs of Destruction'], [0,['Orb of Harmony', 'Transcendence']])
 
-
-meta_comp = [31,29,26,14,7,4,2,1,9]
+# order is tanks 0, damage 1, support 2
+meta_comp = [[31,29], [26, 7, 1, 9], [14, 4, 2]]
 
 # These are all lists of things for players to say in and after the games
 choosing_hero_sentences_angriest = ['bro, i f****** hate this hero', 'this s*** is garbage', 'I hate this dogs*** meta', 'F*** THIS F****** GAME', 'im about to f****** throw']
@@ -155,7 +183,16 @@ for current_team in [red_team, blue_team]:
     swap_said = False
     comp_synergy = {}
     meta_synergy = []
+    synergy_use_list = None
     team_swap_num = 0
+    person_on_main = 0
+    # these numbers are for flat support, visible power and non visible
+    team_support = 0
+    team_damage = 0
+    team_tanking = 0
+    # these are for the visible and non visible cap
+    team_damage_amplified = 0
+    team_tanking_amplified = 0
     
     # Creating lists to see how close the teams are to synergy or meta comp
     for i in current_team:
@@ -173,21 +210,60 @@ for current_team in [red_team, blue_team]:
 
     if len(meta_synergy) > comp_synergy[comp_synergy_key]:
         team_swap_num = 3
+        synergy_use_list = meta_comp
+        #this means meta comp
     else:
         team_swap_num = comp_synergy_key
+        if comp_synergy_key == 0:
+            synergy_use_list = [dive_tanks, dive_damage, dive_support]
+        elif comp_synergy_key == 1:
+            synergy_use_list = [brawl_tanks, brawl_damage, brawl_support]
+        else:
+            synergy_use_list = [bunker_tanks, bunker_damage, bunker_support]
+        #this will swap to the number. ex 0 means dive 1 is brawl and 2 is bunker
     
     chars_picked = []
     for x in current_team:
-        char_weight_pick = random.choices(
-            #1 is synergy, 2 is main, 3 is random
-            [1,2,3],
-            weights=[((sr_average * x.swap_willingness) / 150,000)), 0.4, 0.2],
-            k=1
-        )
-        
+
+        if swap_said == False:
+            swap_options = random.choices(
+                [1,2,3],
+                # 1 is swapping to a comp with synergy/meta, 2 is their main, and 3 is random
+                weights = [((sr_average * x.swap_willingness) / (250,000 / int(x.personality_type))), 0.7, 0.2],
+                k=1
+            )
+
+            # if elect to swap to a comp with synergy
+            if swap_options = 1:
+                #if the synergy comp is dive
+                if team_swap_num == 0:
+                    print(x.name + ": Lets go dive")
+                    # 0 in role is tank
+                    # synergy order is tank 0, damage 1, support 2
+                    swap_var = None
+                    if x.role_variable == 0:
+                        compar_chars = {}
+                        for f in dive_tanks:
+                            if f in synergy_use_list[0]:
+                                compar_chars[f] = 0
+                        for f in compar_chars:
+                            eval(compar_chars[f])
+
+                                
+
+                    elif x.role_variable == 1:
+                        swap_var = dive_damage
+                    else:
+                        swap_var = dive_support
+                    
+                    x.swapHero(swap_var)
+                        x.char_being_played = x.role_variable
+                swap_said = True
+
         if x.mainID not in chars_picked:
             x.char_being_played = x.mainID
             chars_picked.append(x.mainID)
+            person_on_main = [x.name, x.char_being_played]
         else: 
             #change here to look in their history for a hero that can be picked
             if 
