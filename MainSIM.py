@@ -248,7 +248,7 @@ for current_team in [red_team, blue_team]:
                                 compar_chars[f] = 0
                         for f in compar_chars:
                             eval(compar_chars[f])
-
+                        
                                 
 
                     elif x.role_variable == 1:
