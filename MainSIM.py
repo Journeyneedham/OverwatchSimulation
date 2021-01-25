@@ -5,7 +5,7 @@ import random
 r = RandomWords()
 
 all_heroes = ['Ana', 'Ashe', 'Baptiste', 'Bastion', 'Brigitte', 'DIVA', 'Doomfist', 'Echo', 'Genji', 'Hanzo', 'Junkrat', 'Lucio',
- 'Mccree', 'Mei', 'Mercy', 'Moira', 'Orisa' , 'Pharah', 'Reaper' ,'Reinhardt', 'Roadhog', 'Sigma', 'Soldier 76', 'Sombra', 'Symmetra', 'Torbjorn', 'Tracer', 'Widowmaker',
+ 'McCree', 'Mei', 'Mercy', 'Moira', 'Orisa' , 'Pharah', 'Reaper' ,'Reinhardt', 'Roadhog', 'Sigma', 'Soldier', 'Sombra', 'Symmetra', 'Torbjorn', 'Tracer', 'Widowmaker',
  'Winston', 'Hammond', 'Zarya', 'Zenyatta']
 
 
@@ -15,23 +15,13 @@ all_supports = [0, 2, 4, 11, 14, 15, 31]
 
 all_damage = [1, 3, 6, 7, 8, 9, 10, 12, 13, 17, 18, 22, 23, 24, 25, 26, 27]
 
-brawl_tanks = [19, 30]
+# order is tanks 0, damage 1, support 2
 
-brawl_damage = [12, 18, 22]
+brawl_comp = [[19, 30], [12, 18, 22], [15, 11, 4]]
 
-brawl_support = [15, 11, 4]
+dive_comp = [[5, 28, 29], [6, 7, 8, 17, 23, 26], [0, 11, 14, 31]]
 
-dive_tanks = [5, 28, 29]
-
-dive_damage = [6, 7, 8, 17, 23, 26]
-
-dive_support = [0, 11, 14, 31]
-
-bunker_tanks = [16, 20, 21, 19]
-
-bunker_damage = [1, 3, 9, 10, 22, 24, 25, 27]
-
-bunker_support = [2, 14, 15]
+bunker_comp = [[16, 20, 21, 19], [1, 3, 9, 10, 22, 24, 25, 27], [2, 14, 15]]
 
 class Hero:
 
@@ -57,12 +47,14 @@ class Hero:
 
 class Player:
 
-    def __init__(self, rank_start, rank_end, role_variable):
+    def __init__(self, rank_start, rank_end, role_variable, player_id):
         self.name = "BigGamer" + str(random.randint(10,500))
         self.rank = random.randint(rank_start, rank_end)
+        self.player_id = player_id
         player_average = rank_start + rank_end / 2
         # making sure 2-2-2 is enforced
         self.role_variable = role_variable
+        self.mainID = None
         if role_variable == 0:
             self.mainID = random.choice(all_tanks)
         if role_variable == 1:
@@ -70,29 +62,38 @@ class Player:
         if role_variable == 2:
             self.mainID = random.choice(all_damage)
         self.swap_willingness = random.randint(1,100)
-        self.frustration = 0
         self.char_being_played = self.mainID
         self.last_played = self.mainID
+        self.current_value = 0
         self.deaths = 0
         self.eliminations = 0
-        self.heroes_played = {self.mainID: 1}
+        self.heroes_played = {self.mainID: {self.mainID: 1, 'value': 1}}
         self.fun_had = 100
         self.personality_type = str(random.choices(
             [1,2,3,4,5],
             weights = [0.1, 0.2, 0.3, ( player_average / 7000), (player_average / 7000)],
             k = 1
         )[0]) # 1-5. with 1 being the most hostile, and 5 being the best teammate you can get
+        self.frustration = (5 - int(self.personality_type)) * random.randint(1,8)
 
 
     def swapHero(self, new_hero):
         self.last_played = self.char_being_played
         self.char_being_played = new_hero
         if new_hero in self.heroes_played:
-            self.heroes_played[new_hero] += 1
+            self.heroes_played[new_hero][new_hero] += 1
+            self.heroes_played[new_hero]['value'] = self.heroes_played[new_hero]['value'] + self.current_value
         else:
-            self.heroes_played[new_hero] = 1
-        print(self.name + " has swapped to " + self.char_being_played)
+            self.heroes_played[new_hero] = {new_hero : 1, 'value' : self.current_value}
+        self.current_value = 0
+        print(self.name + " has swapped to " + all_heroes[self.char_being_played])
 
+    def addValue(self, char_for_val, value_add)
+        if char_for_val in self.heroes_played:
+            self.heroes_played[new_hero][char_for_val] += 
+            self.heroes_played[new_hero]['value'] = self.heroes_played[new_hero]['value'] + self.current_value
+        else:
+            self.heroes_played[new_hero] = {new_hero : 1, 'value' : self.current_value}
 
     
 
@@ -102,34 +103,34 @@ class Player:
 Ana = Hero(0, 2, 2, 80, 15, 85, 5, 5, 10, 15, 65, ['Sleep Dart', 'Biotic Grenade', 'Biotic Rifle'], [0,['Nanoboost', 'Biotic Rifle', 'Biotic Grenade']])
 Ashe = Hero(1, 1, 2, 60, 20, 0, 15, 90, 130, 15, 80, ['Dynamite', 'Coach Gun'], [1,['Bob']])
 Baptiste = Hero(2, 2, 2, 5, 10, 95, 5, 80, 85, 15, 60, ['Biotic Launcher'], [0,['Amplification Matrix']])
-Bastion = Hero(3, 1, 2, 70, 75, 5, 35, 60, 90, 55, 60, ['Sentry Mode', 'Recon Mode'], [1,['Tank Mode']])
-Brigitte = Hero(4, 2, 1, 20, 75, 80, 60, 35, 40, 80, 10, ['Flail', 'Shield Bash', 'Whip'], [0,['Inspire', 'Rally', 'Repair Throw']])
+Bastion = Hero(3, 1, 2, 70, 75, 5, 25, 60, 90, 35, 60, ['Sentry Mode', 'Recon Mode'], [1,['Tank Mode']])
+Brigitte = Hero(4, 2, 1, 20, 75, 80, 25, 35, 40, 35, 10, ['Flail', 'Shield Bash', 'Whip'], [0,['Inspire', 'Rally', 'Repair Throw']])
 DIVA = Hero(5, 0, 0, 5, 80, 0, 40, 30, 35, 50, 40, ['Rockets', 'Fusion Cannons', 'Self-Destruct'], [0,['Defense Matrix']])
-Doomfist = Hero(6, 1, 0, 90, 20, 0, 35, 65, 75, 40, 55, ['Slam', 'Upper Cut', 'Punch'], [1,['Meteor Strike']])
-Echo = Hero(7, 1, 0, 30, 70, 0, 65, 95, 180, 105, 90, ['Tri-Shot', 'Sticky Bombs', 'Focusing Beam'], [1,['Duplicated Hero']])
+Doomfist = Hero(6, 1, 0, 90, 20, 0, 25, 65, 75, 30, 55, ['Slam', 'Upper Cut', 'Punch'], [1,['Meteor Strike']])
+Echo = Hero(7, 1, 0, 30, 70, 0, 15, 95, 180, 25, 90, ['Tri-Shot', 'Sticky Bombs', 'Focusing Beam'], [1,['Duplicated Hero']])
 Genji = Hero(8, 1, 0, 50, 10, 0, 10, 70, 90, 15, 90, ['Shuriken', 'Deflect'], [1,['Dragonblade']])
-Hanzo = Hero(9, 1, 2, 30, 40, 0, 25, 90, 140, 35, 85, ['Storm Bow', 'Storm Arrow'], [1,['Dragonstrike']])
-Junkrat = Hero(10, 1, 2, 30, 25, 0, 35, 50, 70, 40, 80, ['Frag Launcher', 'Mine', 'Trap'], [1,['Riptire']])
-Lucio = Hero(11, 2, 0, 40, 5, 40, 5, 10, 10, 50, 80, ['Sonic Amplifier', 'Boop'], [0,['Crossfade', 'Sound Barrier']])
+Hanzo = Hero(9, 1, 2, 30, 40, 0, 15, 90, 140, 25, 85, ['Storm Bow', 'Storm Arrow'], [1,['Dragonstrike']])
+Junkrat = Hero(10, 1, 2, 30, 25, 0, 15, 50, 70, 20, 80, ['Frag Launcher', 'Mine', 'Trap'], [1,['Riptire']])
+Lucio = Hero(11, 2, 0, 40, 5, 40, 5, 10, 10, 25, 80, ['Sonic Amplifier', 'Boop'], [0,['Crossfade', 'Sound Barrier']])
 McCree = Hero(12, 1, 1, 70, 70, 0, 25, 80, 110, 30, 80, ['Revolver', 'Fan the Hammer'], [2,['Flash']])
-Mei = Hero(13, 1, 1, 30, 60, 0, 45, 80, 90, 50, 65, ['Ice-cicle', 'Freeze'], [2,['Blizzard', 'Freeze']])
-Mercy = Hero(14, 2, 0, 5, 10, 90, 5, 5, 10, 50, 80, ['Blaster'], [0,['Healing Beam', 'Resurrection']])
+Mei = Hero(13, 1, 1, 30, 60, 0, 25, 80, 90, 35, 65, ['Ice-cicle', 'Freeze'], [2,['Blizzard', 'Freeze']])
+Mercy = Hero(14, 2, 0, 5, 10, 90, 5, 5, 10, 30, 80, ['Blaster'], [0,['Healing Beam', 'Resurrection']])
 Moira = Hero(15, 2, 1, 5, 40, 75, 5, 20, 25, 15, 40, ['Biotic Grasp', 'Biotic Orb', 'Coalescence'], [0,['Coalescence', 'Biotic Orb', 'Biotic Grasp']])
-Orisa = Hero(16, 0, 2, 40, 65, 0, 55, 30, 35, 60, 5, ['Fusion Driver', 'Pull'], [0,['Supercharger', 'Barrier']])
-Pharah = Hero(17, 1, 0, 20, 10, 0, 15, 40, 90, 50, 70, ['Rocket Launcher'], [1,['Barrage']])
+Orisa = Hero(16, 0, 2, 40, 65, 0, 55, 30, 35, 75, 5, ['Fusion Driver', 'Pull'], [0,['Supercharger', 'Barrier']])
+Pharah = Hero(17, 1, 0, 20, 10, 0, 10, 40, 90, 40, 70, ['Rocket Launcher'], [1,['Barrage']])
 Reaper = Hero(18, 1, 1, 50, 10, 0, 20, 60, 65, 25, 75, ['Shotguns'], [1,['Death Blossom']])
 Reinhardt = Hero(19, 0, 1, 20, 35, 0, 55, 30, 50, 65, 30, ['Hammer', 'Firestrike', 'Charge'], [2,['Earthshatter']])
 Roadhog = Hero(20, 0, 2, 20, 70, 0, 45, 65, 80, 65, 80, ['Scrap Gun', 'Hook'], [1,['Whole Hog']])
-Sigma = Hero(21, 0, 2, 10, 40, 0, 75, 70, 80, 85, 70, ['Hyperspheres', 'Rock', 'Gravitic Flux'], [2,['Rock']])
-Soldier = Hero(22, 1, 1, 35, 20, 10, 20, 75, 95, 35, 75, ['Pulse Rifle', 'Helix Missile', 'Tactical Visor'], [0,['Biotic Field']])
-Sombra = Hero(23, 1, 0, 30, 90, 15, 25, 60, 70, 30, 60, ['Machine Pistol'], [2,['EMP', 'Hack']])
-Symmetra = Hero(24, 1, 2, 20, 50, 0, 45, 55, 70, 70, 40, ['Photon Beam', 'Sentry Turret'], [0,['Photon Barrier']])
-Torbjorn = Hero(25, 1, 2, 10, 40, 0, 55, 65, 75, 65, 75, ['Rivet Gun', 'Hammer', 'Turret'], [1,['Molten Core']])
-Tracer = Hero(26, 1, 0, 80, 35, 0, 35, 90, 100, 55, 85, ['Pulse Pistols'], [1,['Pulse Bomb']])
-Widowmaker = Hero(27, 1, 2, 80, 40, 0, 65, 70, 100, 75, 75, ['Sniper'], [1,['Venom Mine']])
-Winston = Hero(28, 0, 0, 50, 35, 0, 55, 30, 45, 65, 40, ['Tesla Cannon', 'Jump Pack'], [1,['Primal Rage']])
-Hammond = Hero(29, 0, 0, 80, 90, 0, 90, 75, 80, 95, 75, ['Quad Cannons', 'Roll', 'Piledriver'], [1,['Mines']])
-Zarya = Hero(30, 0, 1, 10, 20, 0, 45, 45, 65, 55, 70, ['Particle Cannon'], [2,['Graviton Surge']])
+Sigma = Hero(21, 0, 2, 10, 40, 0, 65, 60, 80, 85, 70, ['Hyperspheres', 'Rock', 'Gravitic Flux'], [2,['Rock']])
+Soldier = Hero(22, 1, 1, 35, 20, 10, 20, 65, 80, 25, 75, ['Pulse Rifle', 'Helix Missile', 'Tactical Visor'], [0,['Biotic Field']])
+Sombra = Hero(23, 1, 0, 30, 90, 15, 25, 60, 70, 20, 60, ['Machine Pistol'], [2,['EMP', 'Hack']])
+Symmetra = Hero(24, 1, 2, 20, 50, 0, 5, 55, 70, 20, 40, ['Photon Beam', 'Sentry Turret'], [0,['Photon Barrier']])
+Torbjorn = Hero(25, 1, 2, 10, 40, 0, 15, 65, 75, 25, 75, ['Rivet Gun', 'Hammer', 'Turret'], [1,['Molten Core']])
+Tracer = Hero(26, 1, 0, 80, 35, 0, 35, 95, 110, 35, 85, ['Pulse Pistols'], [1,['Pulse Bomb']])
+Widowmaker = Hero(27, 1, 2, 80, 40, 0, 5, 40, 80, 15, 75, ['Sniper'], [1,['Venom Mine']])
+Winston = Hero(28, 0, 0, 50, 35, 0, 55, 20, 35, 65, 40, ['Tesla Cannon', 'Jump Pack'], [1,['Primal Rage']])
+Hammond = Hero(29, 0, 0, 80, 90, 0, 90, 65, 70, 95, 75, ['Quad Cannons', 'Roll', 'Piledriver'], [1,['Mines']])
+Zarya = Hero(30, 0, 1, 10, 20, 0, 45, 65, 75, 55, 70, ['Particle Cannon'], [2,['Graviton Surge']])
 Zenyatta = Hero(31, 2, 0, 90, 5, 55, 5, 85, 100, 15, 70, ['Orbs of Destruction'], [0,['Orb of Harmony', 'Transcendence']])
 
 # order is tanks 0, damage 1, support 2
@@ -138,9 +139,20 @@ meta_comp = [[31,29], [26, 7, 1, 9], [14, 4, 2]]
 # These are all lists of things for players to say in and after the games
 choosing_hero_sentences_angriest = ['bro, i f****** hate this hero', 'this s*** is garbage', 'I hate this dogs*** meta', 'F*** THIS F****** GAME', 'im about to f****** throw']
 choosing_hero_sentences_upset = ["i guess ill play this guy", 'am i really stuck on this hero', 'i shouldnt have queued']
+not_playing_synergy = ['i dont really like this comp, im just gonna go ', 'not a fan of this comp, im gonna play ', 'dont feel like playing that comp, imma play ']
+not_playing_synergy_angry = ['bro f*** that dumba** comp, im playin ', 'nah that comp is dumb as f***, im goin ', 'F*** THAT S*** IM GOING ']
 choosing_hero_random = ['whats up guys?', 'wuz goo', 'whats crackin', 'yo', 'Yo', 'Hey']
 
-end_of_game_angry = ['was i the only one playing?', 'our mercy threw', 'F*** THIS GAME', 'serious question. were our dps throwing?', 'gg. tank diff', 'support diff', 'dps diff']
+unhappy_with_supports = ['can out supports swap?', 'yo, supports. you there?', 'hey supports, can one of you swap?']
+angry_with_supports = ['our supports are dogs***', 'WHY THE F*** CANT THE SUPPORTS HEAL ME????', 'our supports are absolutely braindead', 'zzz supports WTF ARE YOU DOING???', 'support diff']
+
+unhappy_with_tanks = ['can our tanks swap?', 'yo, tanks. you there?', 'tanks, can one of you swap?']
+angry_with_tanks = ['our tanks are dogs***', 'TANKS PRESS W KEY', 'our tanks are F****** braindead', 'gg. tanks are dogs***']
+
+unhappy_with_damage = ['can our dps swap?', 'yo, dps. you there?', 'dps, can one of you swap?']
+angry_with_damage = ['our dps are dogs***', 'DPS TURN ON YOUR MONITORS', 'our dps are F****** braindead', 'pretty sure our dps are throwing']
+
+end_of_game_angry = ['was i the only one playing?', 'our team actually hard threw', 'F*** THIS GAME', 'serious question. was out team throwing?', 'pretty sure the rest of my team didnt have their monitors on', 'wish i had 5 avoid slots']
 end_of_game = ['I feel very, very small... please hold me...', "I'm trying to be a nicer person. It's hard, but I'm trying, guys.", "I'm wrestling with some insecurity issues in my life but thank you for playing with me.", 'gg' 'GGs', 'good try', 'gg go next']
 
 # Create a range for the ranks of the players
@@ -161,7 +173,7 @@ for team_used in [red_team, blue_team]:
             role_type = 1
         else:
             role_type = 2
-        team_used.append(Player(rank_start, rank_end, role_type))
+        team_used.append(Player(rank_start, rank_end, role_type, (str([red_team, blue_team].index(team_used)) + str(player_used))))
 
 
 for x in red_team:
@@ -176,133 +188,778 @@ for x in blue_team:
 
 # First hero pick
 
-#try to pick their main
+#setting global team vars to keep track of
+red_team_support = 0
+red_team_damage = 0
+red_team_tanking = 0
+red_team_damage_amplified = 0
+red_team_tanking_amplified = 0
+red_team_team_swap_num = 0
+
+blue_team_support = 0
+blue_team_damage = 0
+blue_team_tanking = 0
+blue_team_damage_amplified = 0
+blue_team_tanking_amplified = 0
+blue_team_team_swap_num = 0
+
+num_iter = -1
 
 for current_team in [red_team, blue_team]:
+    num_iter += 1
     sr_average = (rank_start + rank_end) / 2
     swap_said = False
     comp_synergy = {}
     meta_synergy = []
+    used_char_list = []
     synergy_use_list = None
-    team_swap_num = 0
-    person_on_main = 0
+    
+    
+    person_to_suggest = None
     # these numbers are for flat support, visible power and non visible
-    team_support = 0
-    team_damage = 0
-    team_tanking = 0
-    # these are for the visible and non visible cap
-    team_damage_amplified = 0
-    team_tanking_amplified = 0
+
+    if num_iter == 0:
+        team_support = red_team_support
+        team_damage = red_team_damage
+        team_tanking = red_team_tanking
+        team_damage_amplified = red_team_damage_amplified
+        team_tanking_amplified = red_team_tanking_amplified
+        team_swap_num = red_team_team_swap_num
+    else: 
+        team_support = blue_team_support
+        team_damage = blue_team_damage
+        team_tanking = blue_team_tanking
+        team_damage_amplified = blue_team_damage_amplified
+        team_tanking_amplified = blue_team_tanking_amplified
+        team_swap_num = blue_team_team_swap_num
     
     # Creating lists to see how close the teams are to synergy or meta comp
     for i in current_team:
-        if i.play_style in comp_synergy:
-            comp_synergy[i.play_style] += 1
+        player_style = eval(all_heroes[i.mainID]).play_style
+        if player_style in comp_synergy:
+            comp_synergy[player_style] += 1
         else:
-            comp_synergy[i.play_style] = 1
+            comp_synergy[player_style] = 1
 
-        if i.play_style in meta_comp:
-            meta_synergy += i.play_style
+        if player_style in meta_comp:
+            meta_synergy += player_style
 
-    comp_synergy_key = max(comp_synergy, key=comp_synergy.get())
+    comp_synergy_key = max(comp_synergy, key=comp_synergy.get)
 
     # Check if their team is closer to meta comp, or a certain synergy
 
     if len(meta_synergy) > comp_synergy[comp_synergy_key]:
         team_swap_num = 3
-        synergy_use_list = meta_comp
+        synergy_use_list = meta_comp.copy()
         #this means meta comp
     else:
         team_swap_num = comp_synergy_key
         if comp_synergy_key == 0:
-            synergy_use_list = [dive_tanks, dive_damage, dive_support]
+            synergy_use_list = [dive_comp[0].copy(), dive_comp[1].copy(), dive_comp[2].copy()]
         elif comp_synergy_key == 1:
-            synergy_use_list = [brawl_tanks, brawl_damage, brawl_support]
+            synergy_use_list = [brawl_comp[0].copy(), brawl_comp[1].copy(), brawl_comp[2].copy()]
         else:
-            synergy_use_list = [bunker_tanks, bunker_damage, bunker_support]
+            synergy_use_list = [bunker_comp[0].copy(), bunker_comp[1].copy(), bunker_comp[2].copy()]
         #this will swap to the number. ex 0 means dive 1 is brawl and 2 is bunker
     
     chars_picked = []
     for x in current_team:
 
+        # if elect to swap to a comp with synergy
+        #if the synergy comp is dive
+        type_string = None
+        if team_swap_num == 0:
+            type_string = 'dive_comp'
+        elif team_swap_num == 1:
+            type_string = 'brawl_comp'
+        elif team_swap_num == 2:
+            type_string = 'bunker_comp'
+        else:
+            type_string = 'meta_comp'
+
         if swap_said == False:
-            swap_options = random.choices(
-                [1,2,3],
-                # 1 is swapping to a comp with synergy/meta, 2 is their main, and 3 is random
-                weights = [((sr_average * x.swap_willingness) / (250,000 / int(x.personality_type))), 0.7, 0.2],
-                k=1
-            )
+            print(x.name + ": Lets go " + type_string[0 : (len(type_string) - 5)] + ' ' + type_string[(len(type_string) - 4) : (len(type_string))])
+            person_to_suggest = x.name
+            swap_said = True
+        # 0 in role is tank
+        # synergy order is tank 0, damage 1, support 2
+        swap_var = None
+        hero_type_temp = None
+        if x.role_variable == 0:
+            hero_type_temp = eval(type_string + '[0]')
+        elif x.role_variable == 1:
+            hero_type_temp = eval(type_string + '[1]')
+        else:
+            hero_type_temp = eval(type_string + '[2]')
+        compar_chars = []
+        synergy_delete = None
+        for f in hero_type_temp:
+            if f in synergy_use_list[x.role_variable]:
+                compar_chars.append(f)
+
+        random_sr_int = random.randint(200, 350)
+
+
+        pick_list = []
+        options_pick_list = []
+        
+        for l in range(len(synergy_use_list[x.role_variable])):
+
+            loop_tank = eval(all_heroes[synergy_use_list[x.role_variable][l]])
+
+            # order is tank 0, damage 1, support 2
+            #create chances the hero will get picked based on the team's support, damage, rank and how fun the hero is
+            if x.role_variable == 0: #tank
+                chance_primary_pick = (loop_tank.NVpower_CAP * (max(1, (team_support/50)))) + loop_tank.NV_power #Primary is tanking / map control ability
+                chance_secondary_pick = (loop_tank.Vpower_CAP * (max(1, ((team_damage + team_tanking)/190)))) + loop_tank.V_power #secondary is damage
+                chance_fun_pick = loop_tank.fun * ((5350 - sr_average) / 1000) #fun
+            elif x.role_variable == 1: #damage
+                chance_primary_pick = (loop_tank.V_power * max(1, (team_damage/50))) + loop_tank.NV_power #Primary is damage and cc
+                chance_secondary_pick = (loop_tank.V_power * max(1, ((team_support + loop_tank.Vpower_CAP)/90))) #secondary is damage with support
+                chance_fun_pick = loop_tank.fun * ((5650 - sr_average) / 1000) #fun
+            else:
+                chance_primary_pick = (loop_tank.V_power * max(1, (team_tanking_amplified/50)) + loop_tank.NV_power) #Primary healing out
+                chance_secondary_pick = (loop_tank.V_power * max(1, ((team_damage_amplified + loop_tank.Vpower_CAP)/70))) #secondary is utility
+                chance_fun_pick = loop_tank.fun * ((5450 - sr_average) / 1000) #fun
+
+            pick_list.append(chance_fun_pick + chance_primary_pick + chance_secondary_pick)
+            options_pick_list.append(loop_tank.id_number)
+            
+                #add some past picks here
+        
+        high_sr_var = random.choices(
+            options_pick_list,
+            weights = pick_list,
+            k=1
+        )[0]
+
+        add_random_char = random.choices(
+            [1,2,3],
+            weights=[9000 + (sr_average * 3), max(1000, ((4600 - sr_average) * (6 - int(x.personality_type)))), (4600 - sr_average) * (6 - int(x.personality_type))],
+            k=1
+
+        )[0]
+        first_check = False
+        if add_random_char == 2:
+            def random_char_func():
+                global high_sr_var
+               
+                first_check = True
+                if x.role_variable == 0:
+                    high_sr_var = eval(all_heroes[random.choice(all_tanks)]).id_number
+                elif x.role_variable == 1:
+                    high_sr_var = eval(all_heroes[random.choice(all_damage)]).id_number
+                else:
+                    high_sr_var = eval(all_heroes[random.choice(all_supports)]).id_number
+                if high_sr_var in used_char_list:
+                    random_char_func()
+                elif high_sr_var not in synergy_use_list[x.role_variable]:
+                    swapping_quote = random.choices(
+                        [1,2],
+                        weights = [350, ((6 - int(x.personality_type)) * x.frustration)],
+                        k=1
+
+                    )[0]
+                    if swapping_quote == 1:
+                        print(x.name + ': ' + random.choice(not_playing_synergy) + all_heroes[high_sr_var])
+                    else:
+                        print(x.name + ': ' + random.choice(not_playing_synergy_angry) + all_heroes[high_sr_var])
+                
+                    
+            if first_check == False:
+                random_char_func()
+        high_sr_var = eval(all_heroes[high_sr_var])
+        used_char_list.append(high_sr_var.id_number)
+        team_support += high_sr_var.support_out
+        team_damage += high_sr_var.V_power
+        team_tanking += high_sr_var.NV_power
+        team_damage_amplified += high_sr_var.Vpower_CAP
+        team_tanking_amplified += (high_sr_var.NVpower_CAP + high_sr_var.map_controller)
+        if num_iter == 0:
+            red_team_support = team_support
+            red_team_damage = team_damage
+            red_team_tanking = team_tanking
+            red_team_damage_amplified = team_damage_amplified
+            red_team_tanking_amplified = team_tanking_amplified
+            red_team_team_swap_num = team_swap_num
+        else: 
+            blue_team_support = team_support
+            blue_team_damage = team_damage
+            blue_team_tanking = team_tanking
+            blue_team_damage_amplified = team_damage_amplified
+            blue_team_tanking_amplified = team_tanking_amplified
+            blue_team_team_swap_num = team_swap_num
+        x.swapHero(high_sr_var.id_number)
+        if high_sr_var.id_number in synergy_use_list[x.role_variable]:
+            synergy_use_list[x.role_variable].remove(high_sr_var.id_number)
+
+
+           # eval(compar_chars[f])
+
+#----------------------------------------------------------------------------------------
+#------------------ Function for swapping after fights-----------------------------------
+#----------------------------------------------------------------------------------------
+
+
+def losing_team_swap(team, team_id):
+
+    for current_team in len(team):
+        sr_average = (rank_start + rank_end) / 2
+        swap_said = False
+        comp_synergy = {}
+        meta_synergy = []
+        used_char_list = []
+        synergy_use_list = None
+        
+        
+        person_to_suggest = None
+        # these numbers are for flat support, visible power and non visible
+
+        if team_id == 'red':
+            team_support = red_team_support
+            team_damage = red_team_damage
+            team_tanking = red_team_tanking
+            team_damage_amplified = red_team_damage_amplified
+            team_tanking_amplified = red_team_tanking_amplified
+            team_swap_num = red_team_team_swap_num
+
+        meta_chance = 0
+        bunker_chance = 0
+        brawl_chance = 0
+        dive_chance = 0
+        for i in team:
+            #if tank
+            if team[i].role_variable == 0:
+                #check for meta comp
+                for l in meta_comp[0]:
+                    #check if initial dict key matches
+                    if meta_comp[0][l] in team[i].heroes_played:
+                        #then subtract valu
+                        meta_chance += (team[i].heroes_played[meta_comp[0][l]]['value'] - team[i].heroes_played[meta_comp[0][l]][meta_comp[0][l]])
+                #check for buner
+                for l in bunker_comp[0]:
+                    if bunker_comp[0][l] in team[i].heroes_played:
+                        bunker_chance += (team[i].heroes_played[bunker_comp[0][l]]['value'] - team[i].heroes_played[bunker_comp[0][l]][bunker_comp[0][l]])
+                for l in brawl_comp[0]:
+                    if brawl_comp[0][l] in team[i].heroes_played:
+                        brawl_chance += (team[i].heroes_played[brawl_comp[0][l]]['value'] - team[i].heroes_played[brawl_comp[0][l]][brawl_comp[0][l]])
+                for l in dive_comp[0]:
+                    if dive_comp[0][l] in team[i].heroes_played:
+                        dive_chance += (team[i].heroes_played[dive_comp[0][l]]['value'] - team[i].heroes_played[dive_comp[0][l]][dive_comp[0][l]])
+            #if support
+            if team[i].role_variable == 1:
+                #check for meta comp
+                for l in meta_comp[2]:
+                    #check if initial dict key matches
+                    if meta_comp[2][l] in team[i].heroes_played:
+                        #then subtract valu
+                        meta_chance += (team[i].heroes_played[meta_comp[2][l]]['value'] - team[i].heroes_played[meta_comp[2][l]][meta_comp[2][l]])
+                #check for buner
+                for l in bunker_comp[2]:
+                    if bunker_comp[2][l] in team[i].heroes_played:
+                        bunker_chance += (team[i].heroes_played[bunker_comp[2][l]]['value'] - team[i].heroes_played[bunker_comp[2][l]][bunker_comp[2][l]])
+                for l in brawl_comp[2]:
+                    if brawl_comp[2][l] in team[i].heroes_played:
+                        brawl_chance += (team[i].heroes_played[brawl_comp[2][l]]['value'] - team[i].heroes_played[brawl_comp[2][l]][brawl_comp[2][l]])
+                for l in dive_comp[2]:
+                    if dive_comp[2][l] in team[i].heroes_played:
+                        dive_chance += (team[i].heroes_played[dive_comp[2][l]]['value'] - team[i].heroes_played[dive_comp[2][l]][dive_comp[2][l]])
+            if team[i].role_variable == 2:
+                #check for meta comp
+                for l in meta_comp[1]:
+                    #check if initial dict key matches
+                    if meta_comp[1][l] in team[i].heroes_played:
+                        #then subtract valu
+                        meta_chance += (team[i].heroes_played[meta_comp[1][l]]['value'] - team[i].heroes_played[meta_comp[1][l]][meta_comp[1][l]])
+                #check for buner
+                for l in bunker_comp[1]:
+                    if bunker_comp[1][l] in team[i].heroes_played:
+                        bunker_chance += (team[i].heroes_played[bunker_comp[1][l]]['value'] - team[i].heroes_played[bunker_comp[1][l]][bunker_comp[1][l]])
+                for l in brawl_comp[1]:
+                    if brawl_comp[1][l] in team[i].heroes_played:
+                        brawl_chance += (team[i].heroes_played[brawl_comp[1][l]]['value'] - team[i].heroes_played[brawl_comp[1][l]][brawl_comp[1][l]])
+                for l in dive_comp[1]:
+                    if dive_comp[1][l] in team[i].heroes_played:
+                        dive_chance += (team[i].heroes_played[dive_comp[1][l]]['value'] - team[i].heroes_played[dive_comp[1][l]][dive_comp[1][l]])
+        
+        print('meta chance: ' + str(meta_chance) + ' dive chance: ' + str(dive_chance) + ' brawl chance: ' + str(brawl_chance) + ' bunker chance: ' + str(bunker_chance))
+
+        elif team_id == 'blue': 
+            team_support = blue_team_support
+            team_damage = blue_team_damage
+            team_tanking = blue_team_tanking
+            team_damage_amplified = blue_team_damage_amplified
+            team_tanking_amplified = blue_team_tanking_amplified
+            team_swap_num = blue_team_team_swap_num
+        
+        # Creating lists to see how close the teams are to synergy or meta comp
+        for i in team:
+            player_style = eval(all_heroes[i.mainID]).play_style
+            if player_style in comp_synergy:
+                comp_synergy[player_style] += 1
+            else:
+                comp_synergy[player_style] = 1
+
+            if player_style in meta_comp:
+                meta_synergy += player_style
+
+        comp_synergy_key = max(comp_synergy, key=comp_synergy.get)
+
+        # Check if their team is closer to meta comp, or a certain synergy
+
+
+        #adding some randomness and main priority for comp  synergy swaps
+        random.choices(
+            [1,2,3,4,5],
+            weights= [100, ]
+
+        )
+
+        if len(meta_synergy) > comp_synergy[comp_synergy_key]:
+            team_swap_num = 3
+            synergy_use_list = meta_comp.copy()
+            #this means meta comp
+        else:
+            team_swap_num = comp_synergy_key
+            if comp_synergy_key == 0:
+                synergy_use_list = [dive_comp[0].copy(), dive_comp[1].copy(), dive_comp[2].copy()]
+            elif comp_synergy_key == 1:
+                synergy_use_list = [brawl_comp[0].copy(), brawl_comp[1].copy(), brawl_comp[2].copy()]
+            else:
+                synergy_use_list = [bunker_comp[0].copy(), bunker_comp[1].copy(), bunker_comp[2].copy()]
+            #this will swap to the number. ex 0 means dive 1 is brawl and 2 is bunker
+        
+        chars_picked = []
+        for x in current_team:
 
             # if elect to swap to a comp with synergy
-            if swap_options = 1:
-                #if the synergy comp is dive
-                if team_swap_num == 0:
-                    print(x.name + ": Lets go dive")
-                    # 0 in role is tank
-                    # synergy order is tank 0, damage 1, support 2
-                    swap_var = None
-                    if x.role_variable == 0:
-                        compar_chars = {}
-                        for f in dive_tanks:
-                            if f in synergy_use_list[0]:
-                                compar_chars[f] = 0
-                        for f in compar_chars:
-                            eval(compar_chars[f])
-                        
-                                
+            #if the synergy comp is dive
+            type_string = None
+            if team_swap_num == 0:
+                type_string = 'dive_comp'
+            elif team_swap_num == 1:
+                type_string = 'brawl_comp'
+            elif team_swap_num == 2:
+                type_string = 'bunker_comp'
+            else:
+                type_string = 'meta_comp'
 
-                    elif x.role_variable == 1:
-                        swap_var = dive_damage
-                    else:
-                        swap_var = dive_support
-                    
-                    x.swapHero(swap_var)
-                        x.char_being_played = x.role_variable
+            if swap_said == False:
+                print(x.name + ": Lets go " + type_string[0 : (len(type_string) - 5)] + ' ' + type_string[(len(type_string) - 4) : (len(type_string))])
+                person_to_suggest = x.name
                 swap_said = True
+            # 0 in role is tank
+            # synergy order is tank 0, damage 1, support 2
+            swap_var = None
+            hero_type_temp = None
+            if x.role_variable == 0:
+                hero_type_temp = eval(type_string + '[0]')
+            elif x.role_variable == 1:
+                hero_type_temp = eval(type_string + '[1]')
+            else:
+                hero_type_temp = eval(type_string + '[2]')
+            compar_chars = []
+            synergy_delete = None
+            for f in hero_type_temp:
+                if f in synergy_use_list[x.role_variable]:
+                    compar_chars.append(f)
 
-        if x.mainID not in chars_picked:
-            x.char_being_played = x.mainID
-            chars_picked.append(x.mainID)
-            person_on_main = [x.name, x.char_being_played]
-        else: 
-            #change here to look in their history for a hero that can be picked
-            if 
-                        
-            #put the possibility of leaving here
-            if random.random() < 0.2:
-                print(x.name + ": " + choosing_hero_sentences_angriest)
+            random_sr_int = random.randint(200, 350)
 
 
-
-for i in range(4):
-    for current_team in [red_team, blue_team]:
-
-        for x in current_team:
-            if i == 3 and random.choices(
-                [True, False],
-                weights = [],
-                k = 1
-            )
+            pick_list = []
+            options_pick_list = []
             
+            for l in range(len(synergy_use_list[x.role_variable])):
 
+                loop_tank = eval(all_heroes[synergy_use_list[x.role_variable][l]])
 
+                # order is tank 0, damage 1, support 2
+                #create chances the hero will get picked based on the team's support, damage, rank and how fun the hero is
+                if x.role_variable == 0: #tank
+                    chance_primary_pick = (loop_tank.NVpower_CAP * (max(1, (team_support/50)))) + loop_tank.NV_power #Primary is tanking / map control ability
+                    chance_secondary_pick = (loop_tank.Vpower_CAP * (max(1, ((team_damage + team_tanking)/190)))) + loop_tank.V_power #secondary is damage
+                    chance_fun_pick = loop_tank.fun * ((5350 - sr_average) / 1000) #fun
+                elif x.role_variable == 1: #damage
+                    chance_primary_pick = (loop_tank.V_power * max(1, (team_damage/50))) + loop_tank.NV_power #Primary is damage and cc
+                    chance_secondary_pick = (loop_tank.V_power * max(1, ((team_support + loop_tank.Vpower_CAP)/90))) #secondary is damage with support
+                    chance_fun_pick = loop_tank.fun * ((5650 - sr_average) / 1000) #fun
+                else:
+                    chance_primary_pick = (loop_tank.V_power * max(1, (team_tanking_amplified/50)) + loop_tank.NV_power) #Primary healing out
+                    chance_secondary_pick = (loop_tank.V_power * max(1, ((team_damage_amplified + loop_tank.Vpower_CAP)/70))) #secondary is utility
+                    chance_fun_pick = loop_tank.fun * ((5450 - sr_average) / 1000) #fun
+
+                pick_list.append(chance_fun_pick + chance_primary_pick + chance_secondary_pick)
+                options_pick_list.append(loop_tank.id_number)
+                
+                    #add some past picks here
+            
+            high_sr_var = random.choices(
+                options_pick_list,
+                weights = pick_list,
+                k=1
+            )[0]
+
+            add_random_char = random.choices(
+                [1,2,3],
+                weights=[9000 + (sr_average * 3), max(1000, ((4600 - sr_average) * (6 - int(x.personality_type)))), (4600 - sr_average) * (6 - int(x.personality_type))],
+                k=1
+
+            )[0]
+            first_check = False
+            if add_random_char == 2:
+                def random_char_func():
+                    global high_sr_var
+                
+                    first_check = True
+                    if x.role_variable == 0:
+                        high_sr_var = eval(all_heroes[random.choice(all_tanks)]).id_number
+                    elif x.role_variable == 1:
+                        high_sr_var = eval(all_heroes[random.choice(all_damage)]).id_number
+                    else:
+                        high_sr_var = eval(all_heroes[random.choice(all_supports)]).id_number
+                    if high_sr_var in used_char_list:
+                        random_char_func()
+                    elif high_sr_var not in synergy_use_list[x.role_variable]:
+                        swapping_quote = random.choices(
+                            [1,2],
+                            weights = [350, ((6 - int(x.personality_type)) * x.frustration)],
+                            k=1
+
+                        )[0]
+                        if swapping_quote == 1:
+                            print(x.name + ': ' + random.choice(not_playing_synergy) + all_heroes[high_sr_var])
+                        else:
+                            print(x.name + ': ' + random.choice(not_playing_synergy_angry) + all_heroes[high_sr_var])
+                    
+                        
+                if first_check == False:
+                    random_char_func()
+            high_sr_var = eval(all_heroes[high_sr_var])
+            used_char_list.append(high_sr_var.id_number)
+            team_support += high_sr_var.support_out
+            team_damage += high_sr_var.V_power
+            team_tanking += high_sr_var.NV_power
+            team_damage_amplified += high_sr_var.Vpower_CAP
+            team_tanking_amplified += (high_sr_var.NVpower_CAP + high_sr_var.map_controller)
+            if team_id == 'red':
+                red_team_support = team_support
+                red_team_damage = team_damage
+                red_team_tanking = team_tanking
+                red_team_damage_amplified = team_damage_amplified
+                red_team_tanking_amplified = team_tanking_amplified
+                red_team_team_swap_num = team_swap_num
+            elif team_id == 'blue': 
+                blue_team_support = team_support
+                blue_team_damage = team_damage
+                blue_team_tanking = team_tanking
+                blue_team_damage_amplified = team_damage_amplified
+                blue_team_tanking_amplified = team_tanking_amplified
+                blue_team_team_swap_num = team_swap_num
+            x.swapHero(high_sr_var.id_number)
+            if high_sr_var.id_number in synergy_use_list[x.role_variable]:
+                synergy_use_list[x.role_variable].remove(high_sr_var.id_number)
+#---------------------------- End function for later swapping--------------------------------
+
+#---------------------------- fighting ------------------------------------------------------
+ 
+print('red team support is: ' + str(red_team_support))  
+print('blue team support is: ' + str(blue_team_support))     
 
 #During round
+#this will swap to the number. ex 0 means dive 1 is brawl and 2 is bunker, 3 is meta
+
+red_games_won = 0
+blue_games_won = 0
+
+
+def fun_calculation(team):
+    overall_return = 0
+    if team == 'red':
+        for i in red_team:
+            overall_return += i.fun_had * (1 + int(i.personality_type))
+    elif team == 'blue':
+        for i in blue_team:
+            overall_return += i.fun_had * (1 + int(i.personality_type))
+    print(overall_return)
+    return overall_return
+    
+
+overall_red = (red_team_damage * (200 - red_team_support)) + (red_team_damage_amplified * red_team_support) + (red_team_tanking * max(10, (80 - red_team_support))) + (red_team_tanking_amplified * red_team_support) + fun_calculation('red')
+overall_blue = (blue_team_damage * (200 - blue_team_support)) + (blue_team_damage_amplified * blue_team_support) + (blue_team_tanking * max(10, (80 - blue_team_support))) + (blue_team_tanking_amplified * blue_team_support) + fun_calculation('blue')
+
+advantage = random.choices(
+    [1,2],
+    weights= [overall_red, overall_blue],
+    k=1
+
+)
+# advantage 1 is red, and 2 is blue
+
+print('red is ' + str(overall_red) + ' blue is ' + str(overall_blue))
+
+red_total = 0
+blue_total = 0
+
+red_stats = []
+blue_stats = []
+
+for i in red_team:
+    red_char_playing = eval(all_heroes[i.char_being_played])
+    red_stats.append([i, (red_char_playing.V_power * (200 - red_team_support)) + (red_char_playing.Vpower_CAP * red_team_support) + (red_char_playing.NV_power * max(1, (80 - red_team_support))) + (red_char_playing.NVpower_CAP * red_team_support) + ((red_char_playing.fun - red_char_playing.frustration) * 3)])
+for i in blue_team:
+    blue_char_playing = eval(all_heroes[i.char_being_played])
+    blue_stats.append([i, (blue_char_playing.V_power * (200 - blue_team_support)) + (blue_char_playing.Vpower_CAP * blue_team_support) + (blue_char_playing.NV_power * max(1, (80 - blue_team_support))) + (blue_char_playing.NVpower_CAP * blue_team_support) + ((blue_char_playing.fun - blue_char_playing.frustration) * 3)])
+
+red_dead = 0
+blue_dead = 0
+dead_people = []
+dead_people_ids = []
+temp_red_stats = red_stats.copy()
+temp_blue_stats = blue_stats.copy()
+for i in range(6):
+    
+    range_options = random.choice([0,1,2,3,4,5])
+    winner_single = random.choices(
+        [1,2],
+        weights= [red_stats[i][1], blue_stats[i][1]],
+        k=1
+    )[0]
+    loser_id = 0
+    # if red wins the fight
+    if winner_single == 1:
+        loser_var = temp_blue_stats[i][0]
+        loser_var.frustration += 2
+        loser_var.fun_had += -2
+        blue_list = []
+        blue_id_list = []
+        for o in temp_blue_stats:
+            if temp_blue_stats[o] not in dead_people:
+                blue_list.append(temp_blue_stats[o][1])
+                blue_id_list.append(temp_blue_stats[o][0])
+
+
+        person_killed = random.choices(
+            blue_id_list,
+            weights = temp_blue_stats,
+            k=1
+        )[0]
+
+
+        #if the person killed was a tank
+        mean_comment = random.choices(
+            [1,2],
+            weights= [700, person_killed.frustration * (5 - person_killed.personality_type)]
+
+        )
+        if mean_comment == 2:
+            # if person killed was a tank
+            if person_killed.role_variable == 0:
+                if random.choice([1,2]) == 1:
+                    random_comment = random.choice(angry_with_supports)
+                    for q in blue_team:
+                        if blue_team[q].role_variable == 1:
+                            blue_team[q].frustration += 10
+                            blue_team[q].fun_had += -10
+                else:
+                    random_comment = random.choice(angry_with_damage)
+                    for q in blue_team:
+                        if blue_team[q].role_variable == 2:
+                            blue_team[q].frustration += 10
+                            blue_team[q].fun_had += -10
+            # if person killed was a support 
+            if person_killed.role_variable == 1:
+                if random.choice([1,2]) == 1:
+                    random_comment = random.choice(angry_with_tanks)
+                    for q in blue_team:
+                        if blue_team[q].role_variable == 0:
+                            blue_team[q].frustration += 10
+                            blue_team[q].fun_had += -10
+                else:
+                    random_comment = random.choice(angry_with_damage)
+                    for q in blue_team:
+                        if blue_team[q].role_variable == 2:
+                            blue_team[q].frustration += 10
+                            blue_team[q].fun_had += -10
+            # if person killed was a dps
+            if person_killed.role_variable == 2:
+                if random.choice([1,2]) == 1:
+                    random_comment = random.choice(angry_with_supports)
+                    for q in blue_team:
+                        if blue_team[q].role_variable == 1:
+                            blue_team[q].frustration += 10
+                            blue_team[q].fun_had += -10
+                else:
+                    random_comment = random.choice(angry_with_tanks)
+                    for q in blue_team:
+                        if blue_team[q].role_variable == 0:
+                            blue_team[q].frustration += 10
+                            blue_team[q].fun_had += -10
+        else:
+            regular_comment = random.choices(
+                [1,2],
+                weights= [60000, (person_killed.personality_type * sr_average)],
+                k=1
+            )
+            if person_killed.role_variable == 0:
+
+                if random.choice([1,2]) == 1:
+                    random_comment = random.choice(unhappy_with_supports)
+                else:
+                    random_comment = random.choice(unhappy_with_damage)
+
+            elif person_killed.role_variable == 1:
+
+                if random.choice([1,2]) == 1:
+                    random_comment = random.choice(unhappy_with_tanks)
+                else:
+                    random_comment = random.choice(unhappy_with_damage)
+
+            elif person_killed.role_variable == 2:
+
+                if random.choice([1,2]) == 1:
+                    random_comment = random.choice(unhappy_with_tanks)
+                else:
+                    random_comment = random.choice(unhappy_with_supports)
+
+        print(person_killed.name + ': ' + random_mean_comment)
+        #when they die
+        temp_blue_stats -= (person_killed.V_power * (200 - blue_team_support)) + (person_killed.Vpower_CAP * blue_team_support) + (person_killed.NV_power * max(1, (80 - blue_team_support))) + (person_killed.NVpower_CAP * blue_team_support) + ((person_killed.fun - person_killed.frustration) * 3)]
+        dead_people.append(person_killed)
+        blue_dead += 1
+        person_killed.deaths += 1
+        person_killed.frustration += 5
+        person_killed.fun_had += -5
+
+    elif winner_single == 2:
+        loser_var = temp_red_stats[i][0]
+        loser_var.frustration += 2
+        loser_var.fun_had += -2
+        red_list = []
+        red_id_list = []
+        for o in temp_red_stats:
+            if temp_red_statss[o] not in dead_people:
+                red_list.append(temp_red_stats[o][1])
+                red_id_list.append(temp_red_stats[o][0])
+
+
+        person_killed = random.choices(
+            red_id_list,
+            weights = temp_red_stats,
+            k=1
+        )[0]
+
+
+        #if the person killed was a tank
+        mean_comment = random.choices(
+            [1,2],
+            weights= [700, person_killed.frustration * (5 - person_killed.personality_type)]
+
+        )
+        if mean_comment == 2:
+            # if person killed was a tank
+            if person_killed.role_variable == 0:
+                if random.choice([1,2]) == 1:
+                    random_comment = random.choice(angry_with_supports)
+                    for q in red_team:
+                        if red_team[q].role_variable == 1:
+                            red_team[q].frustration += 10
+                            red_team[q].fun_had += -10
+                else:
+                    random_comment = random.choice(angry_with_damage)
+                    for q in red_team:
+                        if red_team[q].role_variable == 2:
+                            red_team[q].frustration += 10
+                            red_team[q].fun_had += -10
+            # if person killed was a support 
+            if person_killed.role_variable == 1:
+                if random.choice([1,2]) == 1:
+                    random_comment = random.choice(angry_with_tanks)
+                    for q in red_team:
+                        if red_team[q].role_variable == 0:
+                            red_team[q].frustration += 10
+                            red_team[q].fun_had += -10
+                else:
+                    random_comment = random.choice(angry_with_damage)
+                    for q in red_team:
+                        if red_team[q].role_variable == 2:
+                            red_team[q].frustration += 10
+                            red_team[q].fun_had += -10
+            # if person killed was a dps
+            if person_killed.role_variable == 2:
+                if random.choice([1,2]) == 1:
+                    random_comment = random.choice(angry_with_supports)
+                    for q in red_team:
+                        if red_team[q].role_variable == 1:
+                            red_team[q].frustration += 10
+                            red_team[q].fun_had += -10
+                else:
+                    random_comment = random.choice(angry_with_tanks)
+                    for q in red_team:
+                        if red_team[q].role_variable == 0:
+                            red_team[q].frustration += 10
+                            red_team[q].fun_had += -10
+        else:
+            regular_comment = random.choices(
+                [1,2],
+                weights= [60000, (person_killed.personality_type * sr_average)],
+                k=1
+            )
+            if person_killed.role_variable == 0:
+
+                if random.choice([1,2]) == 1:
+                    random_comment = random.choice(unhappy_with_supports)
+                else:
+                    random_comment = random.choice(unhappy_with_damage)
+
+            elif person_killed.role_variable == 1:
+
+                if random.choice([1,2]) == 1:
+                    random_comment = random.choice(unhappy_with_tanks)
+                else:
+                    random_comment = random.choice(unhappy_with_damage)
+
+            elif person_killed.role_variable == 2:
+
+                if random.choice([1,2]) == 1:
+                    random_comment = random.choice(unhappy_with_tanks)
+                else:
+                    random_comment = random.choice(unhappy_with_supports)
+
+        print(person_killed.name + ': ' + random_mean_comment)
+        #when they die
+        temp_red_stats -= (person_killed.V_power * (200 - red_team_support)) + (person_killed.Vpower_CAP * red_team_support) + (person_killed.NV_power * max(1, (80 - red_team_support))) + (person_killed.NVpower_CAP * red_team_support) + ((person_killed.fun - person_killed.frustration) * 3)]
+        dead_people.append(person_killed)
+        red_dead += 1
+        person_killed.deaths += 1
+        person_killed.frustration += 5
+        person_killed.fun_had += -5
+
+
+
+
+
+        # 0 tank, 1 support, 2dps
+
+if red_dead > blue_dead: 
+    for i in blue_team:
+        blue_team[i].heroes_played[blue_team[i].current_hero]
+
 
 
 
 # End of round
 #------------------------------------
 # For each player, update the heroes played with the current one
-for current_team in [red_team, blue_team]:
-    for x in current_team:
+#for current_team in [red_team, blue_team]:
+    #for x in current_team:
         # Check to see if they swapped that round
-        if x.last_played != x.char_being_played:
-            if x.char_being_played in x.heroes_played:
-                x.heroes_played[x.char_being_played] += 1
-            else: 
-                x.heroes_played[x.char_being_played] = 1
-        x.last_played = x.char_being_played
+       # if x.last_played != x.char_being_played:
+        #    if x.char_being_played in x.heroes_played:
+        #        x.heroes_played[x.char_being_played] += 1
+       #     else: 
+       #         x.heroes_played[x.char_being_played] = 1
+     #   x.last_played = x.char_being_played
 
 
 
