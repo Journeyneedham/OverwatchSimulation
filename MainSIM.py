@@ -509,25 +509,45 @@ def losing_team_swap(team, team_id):
 
 
         #adding some randomness and main priority for comp  synergy swaps
-        random.choices(
+        added_weighting = random.choices(
             [1,2,3,4,5],
-            weights= [100, ]
+            weights= [10, meta_chance, dive_chance, brawl_chance, bunker_chance],
+            k=1
 
         )
 
-        if len(meta_synergy) > comp_synergy[comp_synergy_key]:
+        meta_count = len(meta_synergy)
+        if added_weighting == 2:
+            meta_count += meta_chance
             team_swap_num = 3
             synergy_use_list = meta_comp.copy()
-            #this means meta comp
-        else:
-            team_swap_num = comp_synergy_key
-            if comp_synergy_key == 0:
+        elif added_weighting == 3 or added_weighting == 4 or added_weighting == 5: 
+            # 3 is dive, 4 is brawl, and 5 is bunker
+            if added_weighting == 3:
                 synergy_use_list = [dive_comp[0].copy(), dive_comp[1].copy(), dive_comp[2].copy()]
-            elif comp_synergy_key == 1:
+                team_swap_num = 0
+            elif added_weighting == 4:
                 synergy_use_list = [brawl_comp[0].copy(), brawl_comp[1].copy(), brawl_comp[2].copy()]
+                team_swap_num = 1
             else:
                 synergy_use_list = [bunker_comp[0].copy(), bunker_comp[1].copy(), bunker_comp[2].copy()]
-            #this will swap to the number. ex 0 means dive 1 is brawl and 2 is bunker
+                team_swap_num = 2
+        
+        elif added_weighting == 1: 
+
+            if meta_count > comp_synergy[comp_synergy_key]:
+                team_swap_num = 3
+                synergy_use_list = meta_comp.copy()
+                #this means meta comp
+            else:
+                team_swap_num = comp_synergy_key
+                if comp_synergy_key == 0:
+                    synergy_use_list = [dive_comp[0].copy(), dive_comp[1].copy(), dive_comp[2].copy()]
+                elif comp_synergy_key == 1:
+                    synergy_use_list = [brawl_comp[0].copy(), brawl_comp[1].copy(), brawl_comp[2].copy()]
+                else:
+                    synergy_use_list = [bunker_comp[0].copy(), bunker_comp[1].copy(), bunker_comp[2].copy()]
+                #this will swap to the number. ex 0 means dive 1 is brawl and 2 is bunker
         
         chars_picked = []
         for x in current_team:
@@ -545,7 +565,7 @@ def losing_team_swap(team, team_id):
                 type_string = 'meta_comp'
 
             if swap_said == False:
-                print(x.name + ": Lets go " + type_string[0 : (len(type_string) - 5)] + ' ' + type_string[(len(type_string) - 4) : (len(type_string))])
+                print(x.name + ": Lets swap to " + type_string[0 : (len(type_string) - 5)] + ' ' + type_string[(len(type_string) - 4) : (len(type_string))])
                 person_to_suggest = x.name
                 swap_said = True
             # 0 in role is tank
