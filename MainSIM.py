@@ -138,6 +138,10 @@ Zenyatta = Hero(31, 2, 0, 90, 5, 55, 5, 85, 100, 15, 70, ['Orbs of Destruction']
 meta_comp = [[31,29], [26, 7, 1, 9], [14, 4, 2]]
 
 # These are all lists of things for players to say in and after the games
+player_names = ['TickleTrain', 'MercyMain', 'BedWetter11', 'MoiraHeadshotGod', 'BigGamer', 'HarambeFanatic44', 'JeffLuvr', 'GMEBuyer', 'Teltu', 'BradyIsCool', 'Alex', 'BaseballLover64',
+'TomBradyFan', 'GodGamer', 'CoolKid141', 'OboePlayer91', 'Alteffour', 'Gnome', 'GenjiOneTrick', 'Hannibal', 'GhanaFuneral', 'RageWolf55', 'FallenWarfare', 'TwistedTea', 'Throwing', 'Jessica', 'Feester', 'RyuKen', 'BigPete', 'HighGround']
+
+
 choosing_hero_sentences_angriest = ['bro, i f****** hate this hero', 'this s*** is garbage', 'I hate this dogs*** meta', 'F*** THIS F****** GAME', 'im about to f****** throw']
 choosing_hero_sentences_upset = ["i guess ill play this guy", 'am i really stuck on this hero', 'i shouldnt have queued']
 not_playing_synergy = ['i dont really like this comp, im just gonna go ', 'not a fan of this comp, im gonna play ', 'dont feel like playing that comp, imma play ']
