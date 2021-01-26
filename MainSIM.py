@@ -64,7 +64,7 @@ class Player:
         self.swap_willingness = random.randint(1,100)
         self.char_being_played = self.mainID
         self.last_played = self.mainID
-        self.current_value = 0
+        self.current_value = 1
         self.deaths = 0
         self.eliminations = 0
         self.heroes_played = {self.mainID: {self.mainID: 1, 'value': 1}}
@@ -88,12 +88,13 @@ class Player:
         self.current_value = 0
         print(self.name + " has swapped to " + all_heroes[self.char_being_played])
 
-    def addValue(self, char_for_val, value_add)
-        if char_for_val in self.heroes_played:
-            self.heroes_played[new_hero][char_for_val] += 
-            self.heroes_played[new_hero]['value'] = self.heroes_played[new_hero]['value'] + self.current_value
+    def addValue(self):
+        if self.char_being_played in self.heroes_played:
+            self.heroes_played[self.char_being_played]['value'] += self.current_value
+            self.current_value = 0
         else:
-            self.heroes_played[new_hero] = {new_hero : 1, 'value' : self.current_value}
+            self.heroes_played[self.char_being_played] = {current_hero : 1, 'value' : self.current_value}
+            self.current_value = 0
 
     
 
@@ -158,6 +159,7 @@ end_of_game = ['I feel very, very small... please hold me...', "I'm trying to be
 # Create a range for the ranks of the players
 rank_start = int(input("Enter rank range start: "))
 rank_end = int(input("Enter rank range end: "))
+games = int(input('Enter amount of matches to play: '))
 
 # Both team lists
 red_team = []
@@ -402,8 +404,22 @@ for current_team in [red_team, blue_team]:
 
 
 def losing_team_swap(team, team_id):
+    if team_id == 'red':
+        global red_team_support
+        global red_team_damage
+        global red_team_tanking
+        global red_team_damage_amplified
+        global red_team_tanking_amplified
+        global red_team_team_swap_num
+    elif team_id == 'blue':
+        global blue_team_support
+        global blue_team_damage
+        global blue_team_tanking
+        global blue_team_damage_amplified
+        global blue_team_tanking_amplified
+        global blue_team_team_swap_num
 
-    for current_team in len(team):
+    for current_team in range(1):
         sr_average = (rank_start + rank_end) / 2
         swap_said = False
         comp_synergy = {}
@@ -422,76 +438,75 @@ def losing_team_swap(team, team_id):
             team_damage_amplified = red_team_damage_amplified
             team_tanking_amplified = red_team_tanking_amplified
             team_swap_num = red_team_team_swap_num
-
-        meta_chance = 0
-        bunker_chance = 0
-        brawl_chance = 0
-        dive_chance = 0
-        for i in team:
-            #if tank
-            if team[i].role_variable == 0:
-                #check for meta comp
-                for l in meta_comp[0]:
-                    #check if initial dict key matches
-                    if meta_comp[0][l] in team[i].heroes_played:
-                        #then subtract valu
-                        meta_chance += (team[i].heroes_played[meta_comp[0][l]]['value'] - team[i].heroes_played[meta_comp[0][l]][meta_comp[0][l]])
-                #check for buner
-                for l in bunker_comp[0]:
-                    if bunker_comp[0][l] in team[i].heroes_played:
-                        bunker_chance += (team[i].heroes_played[bunker_comp[0][l]]['value'] - team[i].heroes_played[bunker_comp[0][l]][bunker_comp[0][l]])
-                for l in brawl_comp[0]:
-                    if brawl_comp[0][l] in team[i].heroes_played:
-                        brawl_chance += (team[i].heroes_played[brawl_comp[0][l]]['value'] - team[i].heroes_played[brawl_comp[0][l]][brawl_comp[0][l]])
-                for l in dive_comp[0]:
-                    if dive_comp[0][l] in team[i].heroes_played:
-                        dive_chance += (team[i].heroes_played[dive_comp[0][l]]['value'] - team[i].heroes_played[dive_comp[0][l]][dive_comp[0][l]])
-            #if support
-            if team[i].role_variable == 1:
-                #check for meta comp
-                for l in meta_comp[2]:
-                    #check if initial dict key matches
-                    if meta_comp[2][l] in team[i].heroes_played:
-                        #then subtract valu
-                        meta_chance += (team[i].heroes_played[meta_comp[2][l]]['value'] - team[i].heroes_played[meta_comp[2][l]][meta_comp[2][l]])
-                #check for buner
-                for l in bunker_comp[2]:
-                    if bunker_comp[2][l] in team[i].heroes_played:
-                        bunker_chance += (team[i].heroes_played[bunker_comp[2][l]]['value'] - team[i].heroes_played[bunker_comp[2][l]][bunker_comp[2][l]])
-                for l in brawl_comp[2]:
-                    if brawl_comp[2][l] in team[i].heroes_played:
-                        brawl_chance += (team[i].heroes_played[brawl_comp[2][l]]['value'] - team[i].heroes_played[brawl_comp[2][l]][brawl_comp[2][l]])
-                for l in dive_comp[2]:
-                    if dive_comp[2][l] in team[i].heroes_played:
-                        dive_chance += (team[i].heroes_played[dive_comp[2][l]]['value'] - team[i].heroes_played[dive_comp[2][l]][dive_comp[2][l]])
-            if team[i].role_variable == 2:
-                #check for meta comp
-                for l in meta_comp[1]:
-                    #check if initial dict key matches
-                    if meta_comp[1][l] in team[i].heroes_played:
-                        #then subtract valu
-                        meta_chance += (team[i].heroes_played[meta_comp[1][l]]['value'] - team[i].heroes_played[meta_comp[1][l]][meta_comp[1][l]])
-                #check for buner
-                for l in bunker_comp[1]:
-                    if bunker_comp[1][l] in team[i].heroes_played:
-                        bunker_chance += (team[i].heroes_played[bunker_comp[1][l]]['value'] - team[i].heroes_played[bunker_comp[1][l]][bunker_comp[1][l]])
-                for l in brawl_comp[1]:
-                    if brawl_comp[1][l] in team[i].heroes_played:
-                        brawl_chance += (team[i].heroes_played[brawl_comp[1][l]]['value'] - team[i].heroes_played[brawl_comp[1][l]][brawl_comp[1][l]])
-                for l in dive_comp[1]:
-                    if dive_comp[1][l] in team[i].heroes_played:
-                        dive_chance += (team[i].heroes_played[dive_comp[1][l]]['value'] - team[i].heroes_played[dive_comp[1][l]][dive_comp[1][l]])
-        
-        print('meta chance: ' + str(meta_chance) + ' dive chance: ' + str(dive_chance) + ' brawl chance: ' + str(brawl_chance) + ' bunker chance: ' + str(bunker_chance))
-
-        elif team_id == 'blue': 
+        elif team_id == 'blue':
             team_support = blue_team_support
             team_damage = blue_team_damage
             team_tanking = blue_team_tanking
             team_damage_amplified = blue_team_damage_amplified
             team_tanking_amplified = blue_team_tanking_amplified
             team_swap_num = blue_team_team_swap_num
+
+        meta_chance = 0
+        bunker_chance = 0
+        brawl_chance = 0
+        dive_chance = 0
+        for i in range(len(team)):
+            #if tank
+            if team[i].role_variable == 0:
+                #check for meta comp
+                for l in range(len(meta_comp[0])):
+                    #check if initial dict key matches
+                    if meta_comp[0][l] in team[i].heroes_played:
+                        #then subtract valu
+                        meta_chance += (team[i].heroes_played[meta_comp[0][l]]['value'] - team[i].heroes_played[meta_comp[0][l]][meta_comp[0][l]])
+                #check for buner
+                for l in range(len(bunker_comp[0])):
+                    if bunker_comp[0][l] in team[i].heroes_played:
+                        bunker_chance += (team[i].heroes_played[bunker_comp[0][l]]['value'] - team[i].heroes_played[bunker_comp[0][l]][bunker_comp[0][l]])
+                for l in range(len(brawl_comp[0])):
+                    if brawl_comp[0][l] in team[i].heroes_played:
+                        brawl_chance += (team[i].heroes_played[brawl_comp[0][l]]['value'] - team[i].heroes_played[brawl_comp[0][l]][brawl_comp[0][l]])
+                for l in range(len(dive_comp[0])):
+                    if dive_comp[0][l] in team[i].heroes_played:
+                        dive_chance += (team[i].heroes_played[dive_comp[0][l]]['value'] - team[i].heroes_played[dive_comp[0][l]][dive_comp[0][l]])
+            #if support
+            if team[i].role_variable == 1:
+                #check for meta comp
+                for l in range(len(meta_comp[2])):
+                    #check if initial dict key matches
+                    if meta_comp[2][l] in team[i].heroes_played:
+                        #then subtract valu
+                        meta_chance += (team[i].heroes_played[meta_comp[2][l]]['value'] - team[i].heroes_played[meta_comp[2][l]][meta_comp[2][l]])
+                #check for buner
+                for l in range(len(bunker_comp[2])):
+                    if bunker_comp[2][l] in team[i].heroes_played:
+                        bunker_chance += (team[i].heroes_played[bunker_comp[2][l]]['value'] - team[i].heroes_played[bunker_comp[2][l]][bunker_comp[2][l]])
+                for l in range(len(brawl_comp[2])):
+                    if brawl_comp[2][l] in team[i].heroes_played:
+                        brawl_chance += (team[i].heroes_played[brawl_comp[2][l]]['value'] - team[i].heroes_played[brawl_comp[2][l]][brawl_comp[2][l]])
+                for l in range(len(dive_comp[2])):
+                    if dive_comp[2][l] in team[i].heroes_played:
+                        dive_chance += (team[i].heroes_played[dive_comp[2][l]]['value'] - team[i].heroes_played[dive_comp[2][l]][dive_comp[2][l]])
+            if team[i].role_variable == 2:
+                #check for meta comp
+                for l in range(len(meta_comp[1])):
+                    #check if initial dict key matches
+                    if meta_comp[1][l] in team[i].heroes_played:
+                        #then subtract valu
+                        meta_chance += (team[i].heroes_played[meta_comp[1][l]]['value'] - team[i].heroes_played[meta_comp[1][l]][meta_comp[1][l]])
+                #check for buner
+                for l in range(len(bunker_comp[1])):
+                    if bunker_comp[1][l] in team[i].heroes_played:
+                        bunker_chance += (team[i].heroes_played[bunker_comp[1][l]]['value'] - team[i].heroes_played[bunker_comp[1][l]][bunker_comp[1][l]])
+                for l in range(len(brawl_comp[1])):
+                    if brawl_comp[1][l] in team[i].heroes_played:
+                        brawl_chance += (team[i].heroes_played[brawl_comp[1][l]]['value'] - team[i].heroes_played[brawl_comp[1][l]][brawl_comp[1][l]])
+                for l in range(len(dive_comp[1])):
+                    if dive_comp[1][l] in team[i].heroes_played:
+                        dive_chance += (team[i].heroes_played[dive_comp[1][l]]['value'] - team[i].heroes_played[dive_comp[1][l]][dive_comp[1][l]])
         
+        print('meta chance: ' + str(meta_chance) + ' dive chance: ' + str(dive_chance) + ' brawl chance: ' + str(brawl_chance) + ' bunker chance: ' + str(bunker_chance))
+
         # Creating lists to see how close the teams are to synergy or meta comp
         for i in team:
             player_style = eval(all_heroes[i.mainID]).play_style
@@ -514,7 +529,7 @@ def losing_team_swap(team, team_id):
             weights= [10, meta_chance, dive_chance, brawl_chance, bunker_chance],
             k=1
 
-        )
+        )[0]
 
         meta_count = len(meta_synergy)
         if added_weighting == 2:
@@ -550,7 +565,7 @@ def losing_team_swap(team, team_id):
                 #this will swap to the number. ex 0 means dive 1 is brawl and 2 is bunker
         
         chars_picked = []
-        for x in current_team:
+        for x in team:
 
             # if elect to swap to a comp with synergy
             #if the synergy comp is dive
@@ -691,281 +706,469 @@ print('blue team support is: ' + str(blue_team_support))
 
 red_games_won = 0
 blue_games_won = 0
+games_tied = 0
 
 
-def fun_calculation(team):
-    overall_return = 0
-    if team == 'red':
+
+
+for x in range(games):
+    red_match_total = 0
+    blue_match_total = 0
+    for q in range(8):
+
+        def fun_calculation(team):
+            overall_return = 0
+            if team == 'red':
+                for i in red_team:
+                    overall_return += i.fun_had * (1 + int(i.personality_type))
+            elif team == 'blue':
+                for i in blue_team:
+                    overall_return += i.fun_had * (1 + int(i.personality_type))
+            print(overall_return)
+            return overall_return
+            
+
+        overall_red = (red_team_damage * (200 - red_team_support)) + (red_team_damage_amplified * red_team_support) + (red_team_tanking * max(10, (80 - red_team_support))) + (red_team_tanking_amplified * red_team_support) + fun_calculation('red')
+        overall_blue = (blue_team_damage * (200 - blue_team_support)) + (blue_team_damage_amplified * blue_team_support) + (blue_team_tanking * max(10, (80 - blue_team_support))) + (blue_team_tanking_amplified * blue_team_support) + fun_calculation('blue')
+
+        advantage = random.choices(
+            [1,2],
+            weights= [overall_red, overall_blue],
+            k=1
+
+        )
+        # advantage 1 is red, and 2 is blue
+
+
+
+
+
+        red_stats = []
+        blue_stats = []
+
         for i in red_team:
-            overall_return += i.fun_had * (1 + int(i.personality_type))
-    elif team == 'blue':
+            red_char_playing = eval(all_heroes[i.char_being_played])
+            red_stats.append([i, (red_char_playing.V_power * (200 - red_team_support)) + (red_char_playing.Vpower_CAP * red_team_support) + (red_char_playing.NV_power * max(1, (80 - red_team_support))) + (red_char_playing.NVpower_CAP * red_team_support) + ((red_char_playing.fun - i.frustration) * 3)])
         for i in blue_team:
-            overall_return += i.fun_had * (1 + int(i.personality_type))
-    print(overall_return)
-    return overall_return
-    
+            blue_char_playing = eval(all_heroes[i.char_being_played])
+            blue_stats.append([i, (blue_char_playing.V_power * (200 - blue_team_support)) + (blue_char_playing.Vpower_CAP * blue_team_support) + (blue_char_playing.NV_power * max(1, (80 - blue_team_support))) + (blue_char_playing.NVpower_CAP * blue_team_support) + ((blue_char_playing.fun - i.frustration) * 3)])
 
-overall_red = (red_team_damage * (200 - red_team_support)) + (red_team_damage_amplified * red_team_support) + (red_team_tanking * max(10, (80 - red_team_support))) + (red_team_tanking_amplified * red_team_support) + fun_calculation('red')
-overall_blue = (blue_team_damage * (200 - blue_team_support)) + (blue_team_damage_amplified * blue_team_support) + (blue_team_tanking * max(10, (80 - blue_team_support))) + (blue_team_tanking_amplified * blue_team_support) + fun_calculation('blue')
-
-advantage = random.choices(
-    [1,2],
-    weights= [overall_red, overall_blue],
-    k=1
-
-)
-# advantage 1 is red, and 2 is blue
-
-print('red is ' + str(overall_red) + ' blue is ' + str(overall_blue))
-
-red_total = 0
-blue_total = 0
-
-red_stats = []
-blue_stats = []
-
-for i in red_team:
-    red_char_playing = eval(all_heroes[i.char_being_played])
-    red_stats.append([i, (red_char_playing.V_power * (200 - red_team_support)) + (red_char_playing.Vpower_CAP * red_team_support) + (red_char_playing.NV_power * max(1, (80 - red_team_support))) + (red_char_playing.NVpower_CAP * red_team_support) + ((red_char_playing.fun - red_char_playing.frustration) * 3)])
-for i in blue_team:
-    blue_char_playing = eval(all_heroes[i.char_being_played])
-    blue_stats.append([i, (blue_char_playing.V_power * (200 - blue_team_support)) + (blue_char_playing.Vpower_CAP * blue_team_support) + (blue_char_playing.NV_power * max(1, (80 - blue_team_support))) + (blue_char_playing.NVpower_CAP * blue_team_support) + ((blue_char_playing.fun - blue_char_playing.frustration) * 3)])
-
-red_dead = 0
-blue_dead = 0
-dead_people = []
-dead_people_ids = []
-temp_red_stats = red_stats.copy()
-temp_blue_stats = blue_stats.copy()
-for i in range(6):
-    
-    range_options = random.choice([0,1,2,3,4,5])
-    winner_single = random.choices(
-        [1,2],
-        weights= [red_stats[i][1], blue_stats[i][1]],
-        k=1
-    )[0]
-    loser_id = 0
-    # if red wins the fight
-    if winner_single == 1:
-        loser_var = temp_blue_stats[i][0]
-        loser_var.frustration += 2
-        loser_var.fun_had += -2
-        blue_list = []
-        blue_id_list = []
-        for o in temp_blue_stats:
-            if temp_blue_stats[o] not in dead_people:
-                blue_list.append(temp_blue_stats[o][1])
-                blue_id_list.append(temp_blue_stats[o][0])
-
-
-        person_killed = random.choices(
-            blue_id_list,
-            weights = temp_blue_stats,
-            k=1
-        )[0]
-
-
-        #if the person killed was a tank
-        mean_comment = random.choices(
-            [1,2],
-            weights= [700, person_killed.frustration * (5 - person_killed.personality_type)]
-
-        )
-        if mean_comment == 2:
-            # if person killed was a tank
-            if person_killed.role_variable == 0:
-                if random.choice([1,2]) == 1:
-                    random_comment = random.choice(angry_with_supports)
-                    for q in blue_team:
-                        if blue_team[q].role_variable == 1:
-                            blue_team[q].frustration += 10
-                            blue_team[q].fun_had += -10
-                else:
-                    random_comment = random.choice(angry_with_damage)
-                    for q in blue_team:
-                        if blue_team[q].role_variable == 2:
-                            blue_team[q].frustration += 10
-                            blue_team[q].fun_had += -10
-            # if person killed was a support 
-            if person_killed.role_variable == 1:
-                if random.choice([1,2]) == 1:
-                    random_comment = random.choice(angry_with_tanks)
-                    for q in blue_team:
-                        if blue_team[q].role_variable == 0:
-                            blue_team[q].frustration += 10
-                            blue_team[q].fun_had += -10
-                else:
-                    random_comment = random.choice(angry_with_damage)
-                    for q in blue_team:
-                        if blue_team[q].role_variable == 2:
-                            blue_team[q].frustration += 10
-                            blue_team[q].fun_had += -10
-            # if person killed was a dps
-            if person_killed.role_variable == 2:
-                if random.choice([1,2]) == 1:
-                    random_comment = random.choice(angry_with_supports)
-                    for q in blue_team:
-                        if blue_team[q].role_variable == 1:
-                            blue_team[q].frustration += 10
-                            blue_team[q].fun_had += -10
-                else:
-                    random_comment = random.choice(angry_with_tanks)
-                    for q in blue_team:
-                        if blue_team[q].role_variable == 0:
-                            blue_team[q].frustration += 10
-                            blue_team[q].fun_had += -10
-        else:
-            regular_comment = random.choices(
+        red_dead = 0
+        blue_dead = 0
+        living_red_team = red_team.copy()
+        living_blue_team = blue_team.copy()
+        dead_people = []
+        dead_people_ids = []
+        temp_red_stats = red_stats.copy()
+        temp_blue_stats = blue_stats.copy()
+        for w in range(6):
+            
+            range_options = random.choice([0,1,2,3,4,5])
+            winner_single = random.choices(
                 [1,2],
-                weights= [60000, (person_killed.personality_type * sr_average)],
+                weights= [red_stats[w][1], blue_stats[w][1]],
                 k=1
-            )
-            if person_killed.role_variable == 0:
+            )[0]
+            loser_id = 0
+            # if red wins the fight
+            if winner_single == 1:
+                loser_var = blue_stats[w][0]
+                loser_var.frustration += 2
+                loser_var.fun_had += -2
+                blue_list = []
+                blue_id_list = []
+                for o in temp_blue_stats:
+                    if o[0] not in dead_people:
+                        blue_list.append(o[1])
+                        blue_id_list.append(o[0])
 
-                if random.choice([1,2]) == 1:
-                    random_comment = random.choice(unhappy_with_supports)
+
+                person_killed = random.choices(
+                    blue_id_list,
+                    weights = blue_list,
+                    k=1
+                )[0]
+
+
+                #if the person killed was a tank
+                mean_comment = random.choices(
+                    [1,2],
+                    weights= [700, person_killed.frustration * (5 - int(person_killed.personality_type))],
+                    k=1
+
+                )
+                
+                #when they die  
+                for u in temp_blue_stats:
+                    if u[0] == person_killed:
+                        temp_blue_stats.remove(u)
+           
+                dead_people.append(person_killed)
+                blue_dead += 1
+                random_killer = random.choice(red_team)
+                random_killer.addValue()
+                random_killer.eliminations += 1
+                print(person_killed.name + ' was killed by ' + random_killer.name + "'s " + str(random.choice(eval(all_heroes[random_killer.char_being_played]).abilities)))
+                living_blue_team.remove(person_killed)
+
+                if mean_comment == 2:
+                    # if person killed was a tank
+                    if person_killed.role_variable == 0:
+                        if random.choice([1,2]) == 1:
+                            random_comment = random.choice(angry_with_supports)
+                            for q in blue_team:
+                                if blue_team[q].role_variable == 1:
+                                    blue_team[q].frustration += 10
+                                    blue_team[q].fun_had += -10
+                        else:
+                            random_comment = random.choice(angry_with_damage)
+                            for q in blue_team:
+                                if blue_team[q].role_variable == 2:
+                                    blue_team[q].frustration += 10
+                                    blue_team[q].fun_had += -10
+                    # if person killed was a support 
+                    if person_killed.role_variable == 1:
+                        if random.choice([1,2]) == 1:
+                            random_comment = random.choice(angry_with_tanks)
+                            for q in blue_team:
+                                if blue_team[q].role_variable == 0:
+                                    blue_team[q].frustration += 10
+                                    blue_team[q].fun_had += -10
+                        else:
+                            random_comment = random.choice(angry_with_damage)
+                            for q in blue_team:
+                                if blue_team[q].role_variable == 2:
+                                    blue_team[q].frustration += 10
+                                    blue_team[q].fun_had += -10
+                    # if person killed was a dps
+                    if person_killed.role_variable == 2:
+                        if random.choice([1,2]) == 1:
+                            random_comment = random.choice(angry_with_supports)
+                            for q in blue_team:
+                                if blue_team[q].role_variable == 1:
+                                    blue_team[q].frustration += 10
+                                    blue_team[q].fun_had += -10
+                        else:
+                            random_comment = random.choice(angry_with_tanks)
+                            for q in blue_team:
+                                if blue_team[q].role_variable == 0:
+                                    blue_team[q].frustration += 10
+                                    blue_team[q].fun_had += -10
+                    print(person_killed.name + ': ' + random_comment)
                 else:
-                    random_comment = random.choice(unhappy_with_damage)
+                    regular_comment = random.choices(
+                        [1,2],
+                        weights= [20000, (int(person_killed.personality_type) * sr_average)],
+                        k=1
+                    )
+                    if regular_comment == 2:
+                        if person_killed.role_variable == 0:
 
-            elif person_killed.role_variable == 1:
+                            if random.choice([1,2]) == 1:
+                                random_comment = random.choice(unhappy_with_supports)
+                            else:
+                                random_comment = random.choice(unhappy_with_damage)
 
-                if random.choice([1,2]) == 1:
-                    random_comment = random.choice(unhappy_with_tanks)
+                        elif person_killed.role_variable == 1:
+
+                            if random.choice([1,2]) == 1:
+                                random_comment = random.choice(unhappy_with_tanks)
+                            else:
+                                random_comment = random.choice(unhappy_with_damage)
+
+                        elif person_killed.role_variable == 2:
+
+                            if random.choice([1,2]) == 1:
+                                random_comment = random.choice(unhappy_with_tanks)
+                            else:
+                                random_comment = random.choice(unhappy_with_supports)
+
+                        print(person_killed.name + ': ' + random_comment)
+
+                person_killed.deaths += 1
+                person_killed.frustration += 5
+                person_killed.fun_had += -5
+
+            elif winner_single == 2:
+                loser_var = red_stats[w][0]
+                loser_var.frustration += 2
+                loser_var.fun_had += -2
+                red_list = []
+                red_id_list = []
+                for o in temp_red_stats:
+                    if o[0] not in dead_people:
+                        red_list.append(o[1])
+                        red_id_list.append(o[0])
+
+
+                person_killed = random.choices(
+                    red_id_list,
+                    weights = red_list,
+                    k=1
+                )[0]
+
+
+                #if the person killed was a tank
+                mean_comment = random.choices(
+                    [1,2],
+                    weights= [700, person_killed.frustration * (5 - int(person_killed.personality_type))],
+                    k=1
+
+                )
+                
+
+                
+                #when they die
+                hero_player_killed = eval(all_heroes[person_killed.char_being_played])
+                for u in temp_red_stats:
+                    if u[0] == person_killed:
+                        temp_red_stats.remove(u)
+                dead_people.append(person_killed)
+                red_dead += 1
+                random_killer = random.choice(blue_team)
+                random_killer.current_value += 1
+                random_killer.addValue()
+                living_red_team = red_team.copy()
+                random_killer.eliminations += 1
+                print(person_killed.name + ' was killed by ' + random_killer.name + "'s " + str(random.choice(eval(all_heroes[random_killer.char_being_played]).abilities)))
+
+                if mean_comment == 2:
+                    # if person killed was a tank
+                    if person_killed.role_variable == 0:
+                        if random.choice([1,2]) == 1:
+                            random_comment = random.choice(angry_with_supports)
+                            for q in red_team:
+                                if red_team[q].role_variable == 1:
+                                    red_team[q].frustration += 10
+                                    red_team[q].fun_had += -10
+                        else:
+                            random_comment = random.choice(angry_with_damage)
+                            for q in red_team:
+                                if red_team[q].role_variable == 2:
+                                    red_team[q].frustration += 10
+                                    red_team[q].fun_had += -10
+                    # if person killed was a support 
+                    if person_killed.role_variable == 1:
+                        if random.choice([1,2]) == 1:
+                            random_comment = random.choice(angry_with_tanks)
+                            for q in red_team:
+                                if red_team[q].role_variable == 0:
+                                    red_team[q].frustration += 10
+                                    red_team[q].fun_had += -10
+                        else:
+                            random_comment = random.choice(angry_with_damage)
+                            for q in red_team:
+                                if red_team[q].role_variable == 2:
+                                    red_team[q].frustration += 10
+                                    red_team[q].fun_had += -10
+                    # if person killed was a dps
+                    if person_killed.role_variable == 2:
+                        if random.choice([1,2]) == 1:
+                            random_comment = random.choice(angry_with_supports)
+                            for q in red_team:
+                                if red_team[q].role_variable == 1:
+                                    red_team[q].frustration += 10
+                                    red_team[q].fun_had += -10
+                        else:
+                            random_comment = random.choice(angry_with_tanks)
+                            for q in red_team:
+                                if red_team[q].role_variable == 0:
+                                    red_team[q].frustration += 10
+                                    red_team[q].fun_had += -10
+                    print(person_killed.name + ': ' + random_comment)
                 else:
-                    random_comment = random.choice(unhappy_with_damage)
+                    regular_comment = random.choices(
+                        [1,2],
+                        weights= [20000, (int(person_killed.personality_type) * sr_average)],
+                        k=1
+                    )
+                    if regular_comment == 2:
+                        if person_killed.role_variable == 0:
 
-            elif person_killed.role_variable == 2:
+                            if random.choice([1,2]) == 1:
+                                random_comment = random.choice(unhappy_with_supports)
+                            else:
+                                random_comment = random.choice(unhappy_with_damage)
 
-                if random.choice([1,2]) == 1:
-                    random_comment = random.choice(unhappy_with_tanks)
-                else:
-                    random_comment = random.choice(unhappy_with_supports)
+                        elif person_killed.role_variable == 1:
 
-        print(person_killed.name + ': ' + random_mean_comment)
-        #when they die
-        temp_blue_stats -= (person_killed.V_power * (200 - blue_team_support)) + (person_killed.Vpower_CAP * blue_team_support) + (person_killed.NV_power * max(1, (80 - blue_team_support))) + (person_killed.NVpower_CAP * blue_team_support) + ((person_killed.fun - person_killed.frustration) * 3)]
-        dead_people.append(person_killed)
-        blue_dead += 1
-        person_killed.deaths += 1
-        person_killed.frustration += 5
-        person_killed.fun_had += -5
+                            if random.choice([1,2]) == 1:
+                                random_comment = random.choice(unhappy_with_tanks)
+                            else:
+                                random_comment = random.choice(unhappy_with_damage)
 
-    elif winner_single == 2:
-        loser_var = temp_red_stats[i][0]
-        loser_var.frustration += 2
-        loser_var.fun_had += -2
-        red_list = []
-        red_id_list = []
-        for o in temp_red_stats:
-            if temp_red_statss[o] not in dead_people:
-                red_list.append(temp_red_stats[o][1])
-                red_id_list.append(temp_red_stats[o][0])
+                        elif person_killed.role_variable == 2:
 
-
-        person_killed = random.choices(
-            red_id_list,
-            weights = temp_red_stats,
-            k=1
-        )[0]
+                            if random.choice([1,2]) == 1:
+                                random_comment = random.choice(unhappy_with_tanks)
+                            else:
+                                random_comment = random.choice(unhappy_with_supports)
+                        print(person_killed.name + ': ' + random_comment)
+                        
 
 
-        #if the person killed was a tank
-        mean_comment = random.choices(
-            [1,2],
-            weights= [700, person_killed.frustration * (5 - person_killed.personality_type)]
+                person_killed.deaths += 1
+                person_killed.frustration += 5
+                person_killed.fun_had += -5
 
-        )
-        if mean_comment == 2:
-            # if person killed was a tank
-            if person_killed.role_variable == 0:
-                if random.choice([1,2]) == 1:
-                    random_comment = random.choice(angry_with_supports)
-                    for q in red_team:
-                        if red_team[q].role_variable == 1:
-                            red_team[q].frustration += 10
-                            red_team[q].fun_had += -10
-                else:
-                    random_comment = random.choice(angry_with_damage)
-                    for q in red_team:
-                        if red_team[q].role_variable == 2:
-                            red_team[q].frustration += 10
-                            red_team[q].fun_had += -10
-            # if person killed was a support 
-            if person_killed.role_variable == 1:
-                if random.choice([1,2]) == 1:
-                    random_comment = random.choice(angry_with_tanks)
-                    for q in red_team:
-                        if red_team[q].role_variable == 0:
-                            red_team[q].frustration += 10
-                            red_team[q].fun_had += -10
-                else:
-                    random_comment = random.choice(angry_with_damage)
-                    for q in red_team:
-                        if red_team[q].role_variable == 2:
-                            red_team[q].frustration += 10
-                            red_team[q].fun_had += -10
-            # if person killed was a dps
-            if person_killed.role_variable == 2:
-                if random.choice([1,2]) == 1:
-                    random_comment = random.choice(angry_with_supports)
-                    for q in red_team:
-                        if red_team[q].role_variable == 1:
-                            red_team[q].frustration += 10
-                            red_team[q].fun_had += -10
-                else:
-                    random_comment = random.choice(angry_with_tanks)
-                    for q in red_team:
-                        if red_team[q].role_variable == 0:
-                            red_team[q].frustration += 10
-                            red_team[q].fun_had += -10
-        else:
-            regular_comment = random.choices(
+
+
+
+
+                # 0 tank, 1 support, 2dps
+
+        if red_dead > blue_dead: 
+            for i in living_red_team:
+                random_killer = random.choice(blue_team)
+                print(i.name + ' was killed by ' + random_killer.name + "'s " + str(random.choice(eval(all_heroes[random_killer.char_being_played]).abilities)))
+                random_killer.current_value += 1
+                random_killer.addValue()
+                random_killer.eliminations += 1
+                random_killer.frustration -= 5
+                random_killer.fun_had += 5
+                blue_match_total += 1
+            losing_team_swap(red_team, 'red')
+        elif red_dead < blue_dead: 
+            for i in living_blue_team:
+                random_killer = random.choice(red_team)
+                print(i.name + ' was killed by ' + random_killer.name + "'s " + str(random.choice(eval(all_heroes[random_killer.char_being_played]).abilities)))
+                random_killer.current_value += 1
+                random_killer.addValue()
+                random_killer.eliminations += 1
+                random_killer.frustration -= 5
+                random_killer.fun_had += 5
+                red_match_total += 1
+            losing_team_swap(blue_team, 'blue')
+
+    if red_match_total > blue_match_total:
+        red_games_won += 1
+        for l in range(len(red_team)):
+            red_team[l].current_value += 1
+            red_team[l].addValue()
+            red_team[l].fun_had += 10
+            red_team[l].frustration -= 5
+            end_choice = random.choices(
                 [1,2],
-                weights= [60000, (person_killed.personality_type * sr_average)],
+                weights= [2,4],
                 k=1
-            )
-            if person_killed.role_variable == 0:
 
-                if random.choice([1,2]) == 1:
-                    random_comment = random.choice(unhappy_with_supports)
-                else:
-                    random_comment = random.choice(unhappy_with_damage)
+            )[0]
+            if end_choice == 1:
+                what_to_say = random.choices(
+                    [1,2],
+                    weights = [900000, (red_team[l].frustration * (6 - int(red_team[l].personality_type)) * (4800 - sr_average))]
 
-            elif person_killed.role_variable == 1:
+                )[0]
+                if what_to_say == 1:
+                    print('(Red Team)' + red_team[l].name + ': ' + random.choice(end_of_game))
+                elif what_to_say == 2:
+                    print('(Red Team)' + red_team[l].name + ': ' + random.choice(end_of_game_angry))
+        for l in range(len(blue_team)):
+            blue_team[l].fun_had -= 35
+            blue_team[l].frustration += 15
+            end_choice = random.choices(
+                [1,2],
+                weights= [2,4],
+                k=1
 
-                if random.choice([1,2]) == 1:
-                    random_comment = random.choice(unhappy_with_tanks)
-                else:
-                    random_comment = random.choice(unhappy_with_damage)
+            )[0]
+            if end_choice == 1:
+                what_to_say = random.choices(
+                    [1,2],
+                    weights = [900000, (blue_team[l].frustration * (6 - int(blue_team[l].personality_type)) * (4800 - sr_average))]
 
-            elif person_killed.role_variable == 2:
+                )[0]
+                if what_to_say == 1:
+                    print('(Blue Team)' + blue_team[l].name + ': ' + random.choice(end_of_game))
+                elif what_to_say == 2:
+                    print('(Blue Team)' + blue_team[l].name + ': ' + random.choice(end_of_game_angry))
+            
+    elif blue_match_total > red_match_total:
+        blue_games_won += 1
+        for l in range(len(red_team)):
+            red_team[l].fun_had -= 35
+            red_team[l].frustration -= 5
+            end_choice = random.choices(
+                [1,2],
+                weights= [2,4],
+                k=1
 
-                if random.choice([1,2]) == 1:
-                    random_comment = random.choice(unhappy_with_tanks)
-                else:
-                    random_comment = random.choice(unhappy_with_supports)
+            )[0]
+            if end_choice == 1:
+                what_to_say = random.choices(
+                    [1,2],
+                    weights = [900000, (red_team[l].frustration * (6 - int(red_team[l].personality_type)) * (4800 - sr_average))]
 
-        print(person_killed.name + ': ' + random_mean_comment)
-        #when they die
-        temp_red_stats -= (person_killed.V_power * (200 - red_team_support)) + (person_killed.Vpower_CAP * red_team_support) + (person_killed.NV_power * max(1, (80 - red_team_support))) + (person_killed.NVpower_CAP * red_team_support) + ((person_killed.fun - person_killed.frustration) * 3)]
-        dead_people.append(person_killed)
-        red_dead += 1
-        person_killed.deaths += 1
-        person_killed.frustration += 5
-        person_killed.fun_had += -5
+                )[0]
+                if what_to_say == 1:
+                    print('(Red Team)' + red_team[l].name + ': ' + random.choice(end_of_game))
+                elif what_to_say == 2:
+                    print('(Red Team)' + red_team[l].name + ': ' + random.choice(end_of_game_angry))
+        for l in range(len(blue_team)):
+            blue_team[l].current_value += 1
+            blue_team[l].addValue()
+            blue_team[l].fun_had += 10
+            blue_team[l].frustration += 15
+            end_choice = random.choices(
+                [1,2],
+                weights= [2,4],
+                k=1
 
+            )[0]
+            if end_choice == 1:
+                what_to_say = random.choices(
+                    [1,2],
+                    weights = [900000, (blue_team[l].frustration * (6 - int(blue_team[l].personality_type)) * (4800 - sr_average))]
 
+                )[0]
+                if what_to_say == 1:
+                    print('(Blue Team)' + blue_team[l].name + ': ' + random.choice(end_of_game))
+                elif what_to_say == 2:
+                    print('(Blue Team)' + blue_team[l].name + ': ' + random.choice(end_of_game_angry))
+    else:
+        games_tied += 1
+        for l in range(len(red_team)):
+            red_team[l].fun_had -= 10
+            red_team[l].frustration += 5
+            end_choice = random.choices(
+                [1,2],
+                weights= [2,4],
+                k=1
 
+            )[0]
+            if end_choice == 1:
+                what_to_say = random.choices(
+                    [1,2],
+                    weights = [900000, (red_team[l].frustration * (6 - int(red_team[l].personality_type)) * (4800 - sr_average))]
 
+                )[0]
+                if what_to_say == 1:
+                    print('(Red Team)' + red_team[l].name + ': ' + random.choice(end_of_game))
+                elif what_to_say == 2:
+                    print('(Red Team)' + red_team[l].name + ': ' + random.choice(end_of_game_angry))
+        for l in range(len(blue_team)):
+            blue_team[l].fun_had -= 10
+            blue_team[l].frustration += 5
+            end_choice = random.choices(
+                [1,2],
+                weights= [2,4],
+                k=1
 
-        # 0 tank, 1 support, 2dps
+            )[0]
+            if end_choice == 1:
+                what_to_say = random.choices(
+                    [1,2],
+                    weights = [900000, (blue_team[l].frustration * (6 - int(blue_team[l].personality_type)) * (4800 - sr_average))]
 
-if red_dead > blue_dead: 
-    for i in blue_team:
-        blue_team[i].heroes_played[blue_team[i].current_hero]
+                )[0]
+                if what_to_say == 1:
+                    print('(Blue Team)' + blue_team[l].name + ': ' + random.choice(end_of_game))
+                elif what_to_say == 2:
+                    print('(Blue Team)' + blue_team[l].name + ': ' + random.choice(end_of_game_angry))
 
-
+print('red matches won = ' + str(red_games_won))
+print('blue matches won = ' + str(blue_games_won))
+print('matches tied = ' + str(games_tied))
 
 
 # End of round
